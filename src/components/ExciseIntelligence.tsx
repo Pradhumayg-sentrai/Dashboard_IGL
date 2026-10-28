@@ -1,21 +1,41 @@
 import React from 'react';
 import { gateDiversionReasons } from '../data/plantData';
-import { ShieldCheck, AlertOctagon, RotateCcw, Archive, CheckCircle2 } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  AlertOctagon, 
+  RotateCcw, 
+  Archive, 
+  CheckCircle2, 
+  Loader2, 
+  AlertTriangle,
+  Inbox 
+} from 'lucide-react';
+import styles from './ExciseIntelligence.module.css';
 
-export const ExciseIntelligence: React.FC = () => {
+interface ExciseIntelligenceProps {
+  isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+}
+
+export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
+  isLoading = false,
+  isError = false,
+  errorMessage = 'Failed to fetch State Excise portal telemetry'
+}) => {
   return (
-    <div className="glass-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className={`glass-card ${styles.card}`}>
       
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+      <div className={styles.header}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className={styles.titleGroup}>
             <ShieldCheck size={20} color="#10b981" />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f8fafc' }}>
+            <h3 className={styles.title}>
               Excise Portal & Gate Diversion Intelligence
             </h3>
           </div>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+          <p className={styles.subtitle}>
             Real-time validation feedback from state Excise app via Android POS bridge
           </p>
         </div>
@@ -26,74 +46,96 @@ export const ExciseIntelligence: React.FC = () => {
         </span>
       </div>
 
+      {/* Body / States */}
+      {isLoading && (
+        <div className={styles.stateBox}>
+          <Loader2 size={24} className={styles.spinner} />
+          <span>Synchronizing State Excise POS Handset Gateway...</span>
+        </div>
+      )}
+
+      {!isLoading && isError && (
+        <div className={styles.stateBox} style={{ color: '#fb7185' }}>
+          <AlertTriangle size={24} />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      {!isLoading && !isError && gateDiversionReasons.length === 0 && (
+        <div className={styles.stateBox}>
+          <Inbox size={24} />
+          <span>Zero gate diversion events recorded (100% first-pass pass-through)</span>
+        </div>
+      )}
+
       {/* Diversion Reason Pareto List */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          <span>DIVERSION REASON CAUSE</span>
-          <span>CASES / SHARE</span>
-        </div>
+      {!isLoading && !isError && gateDiversionReasons.length > 0 && (
+        <>
+          <div>
+            <div className={styles.paretoHeader}>
+              <span>DIVERSION REASON CAUSE</span>
+              <span>CASES / SHARE</span>
+            </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {gateDiversionReasons.map(item => (
-            <div key={item.code} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                <span style={{ color: '#f8fafc', fontWeight: 500 }}>{item.reason}</span>
-                <span className="font-mono" style={{ color: item.color, fontWeight: 600 }}>
-                  {item.count} cases ({item.percentage}%)
-                </span>
+            <div className={styles.paretoList}>
+              {gateDiversionReasons.map(item => (
+                <div key={item.code} className={styles.paretoRow}>
+                  <div className={styles.paretoTop}>
+                    <span className={styles.reasonText}>{item.reason}</span>
+                    <span className={`font-mono ${styles.countText}`} style={{ color: item.color }}>
+                      {item.count} cases ({item.percentage}%)
+                    </span>
+                  </div>
+                  <div className={styles.paretoTrack}>
+                    <div 
+                      className={styles.paretoFill}
+                      style={{ 
+                        width: `${item.percentage}%`, 
+                        backgroundColor: item.color,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Chute Action Handling Distribution */}
+          <div className={styles.chuteBox}>
+            <div className={styles.chuteTitle}>
+              Chute Operator Resolution Actions
+            </div>
+            
+            <div className={styles.chuteGrid}>
+              
+              <div className={styles.chuteAction}>
+                <RotateCcw size={16} color="#38bdf8" />
+                <div>
+                  <div className={`font-mono ${styles.actionPct}`}>64%</div>
+                  <div className={styles.actionDesc}>Returned to Belt</div>
+                </div>
               </div>
-              <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ 
-                  width: `${item.percentage}%`, 
-                  height: '100%', 
-                  background: item.color,
-                  borderRadius: '3px'
-                }}></div>
+
+              <div className={styles.chuteAction}>
+                <Archive size={16} color="#fbbf24" />
+                <div>
+                  <div className={`font-mono ${styles.actionPct}`}>28%</div>
+                  <div className={styles.actionDesc}>Excise Cell Held</div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Chute Action Handling Distribution */}
-      <div style={{ 
-        background: 'rgba(0, 0, 0, 0.25)', 
-        padding: '14px 16px', 
-        borderRadius: '12px', 
-        border: '1px solid var(--border-subtle)' 
-      }}>
-        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '10px' }}>
-          Chute Operator Resolution Actions
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <RotateCcw size={16} color="#38bdf8" />
-            <div>
-              <div className="font-mono" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>64%</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Returned to Belt</div>
+              <div className={styles.chuteAction}>
+                <AlertOctagon size={16} color="#fb7185" />
+                <div>
+                  <div className={`font-mono ${styles.actionPct}`}>8%</div>
+                  <div className={styles.actionDesc}>Defective Repack</div>
+                </div>
+              </div>
+
             </div>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Archive size={16} color="#fbbf24" />
-            <div>
-              <div className="font-mono" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>28%</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Excise Cell Held</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AlertOctagon size={16} color="#fb7185" />
-            <div>
-              <div className="font-mono" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>8%</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Defective Repack</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+        </>
+      )}
 
     </div>
   );

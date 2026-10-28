@@ -1,6 +1,7 @@
 import React from 'react';
 import type { KPIStats, Timeframe } from '../data/plantData';
 import { PackageCheck, Truck, Timer, ShieldCheck, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import styles from './KpiScorecard.module.css';
 
 interface KpiScorecardProps {
   kpis: KPIStats;
@@ -25,153 +26,130 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
     <div className="kpi-grid">
       
       {/* 1. Total Cartons Dispatched */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+      <div className={`glass-card ${styles.kpiCard}`}>
+        <div className={styles.cardTop}>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            <span className={styles.cardLabel}>
               Total Cartons Dispatched
             </span>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f8fafc', fontFamily: 'var(--font-heading)' }}>
+            <div className={styles.valueRow}>
+              <span className={styles.metricValue}>
                 {kpis.totalDispatched.toLocaleString()}
               </span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <span className={styles.metricSub}>
                 / {kpis.dispatchTarget.toLocaleString()}
               </span>
             </div>
           </div>
-          <div style={{ 
-            padding: '10px', 
-            borderRadius: '12px', 
-            background: 'rgba(56, 189, 248, 0.12)', 
-            color: '#38bdf8' 
-          }}>
+          <div className={`${styles.iconBox} ${styles.iconBoxCyan}`}>
             <PackageCheck size={22} />
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden', marginTop: '8px' }}>
-          <div style={{ 
-            width: `${percentAchieved}%`, 
-            height: '100%', 
-            background: 'linear-gradient(90deg, #0284c7, #38bdf8)',
-            borderRadius: '3px',
-            transition: 'width 0.4s ease'
-          }}></div>
+        <div className={styles.progressTrack}>
+          <div 
+            className={styles.progressFill}
+            style={{ width: `${percentAchieved}%` }}
+          ></div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+        <div className={styles.progressFooter}>
           <span>{getTimeframeLabel()}</span>
-          <span style={{ color: '#38bdf8', fontWeight: 600 }}>{percentAchieved.toFixed(1)}% achieved</span>
+          <span className={styles.attainmentAchieved}>{percentAchieved.toFixed(1)}% achieved</span>
         </div>
       </div>
 
       {/* 2. Trucks Cleared & Sealed */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+      <div className={`glass-card ${styles.kpiCard}`}>
+        <div className={styles.cardTop}>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            <span className={styles.cardLabel}>
               Trucks Cleared & Sealed
             </span>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f8fafc', fontFamily: 'var(--font-heading)' }}>
+            <div className={styles.valueRow}>
+              <span className={styles.metricValue}>
                 {kpis.trucksCleared.toLocaleString()}
               </span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <span className={styles.metricSub}>
                 / {kpis.trucksTarget.toLocaleString()} scheduled
               </span>
             </div>
           </div>
-          <div style={{ 
-            padding: '10px', 
-            borderRadius: '12px', 
-            background: 'rgba(16, 185, 129, 0.12)', 
-            color: '#34d399' 
-          }}>
+          <div className={`${styles.iconBox} ${styles.iconBoxEmerald}`}>
             <Truck size={22} />
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px' }}>
+        <div className={styles.cardFooter}>
           <span className="badge badge-emerald">
             1 Active at Bay 1
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          <span className={styles.cardFooterText}>
             Zero queue congestion
           </span>
         </div>
       </div>
 
       {/* 3. Average Turnaround Time (TAT) */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+      <div className={`glass-card ${styles.kpiCard}`}>
+        <div className={styles.cardTop}>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            <span className={styles.cardLabel}>
               Avg. Turnaround Time (TAT)
             </span>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f8fafc', fontFamily: 'var(--font-heading)' }}>
+            <div className={styles.valueRow}>
+              <span className={styles.metricValue}>
                 {kpis.avgTatMinutes}
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>mins / truck</span>
+              <span className={styles.metricSubMins}>mins / truck</span>
             </div>
           </div>
-          <div style={{ 
-            padding: '10px', 
-            borderRadius: '12px', 
-            background: 'rgba(245, 158, 11, 0.12)', 
-            color: '#fbbf24' 
-          }}>
+          <div className={`${styles.iconBox} ${styles.iconBoxAmber}`}>
             <Timer size={22} />
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '14px', fontSize: '0.78rem' }}>
+        <div className={styles.tatRow}>
           {isTatFaster ? (
-            <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 600 }}>
+            <span className={styles.tatFaster}>
               <ArrowDownRight size={14} /> {Math.abs(Number(tatDifference))}m faster
             </span>
           ) : (
-            <span style={{ color: '#fb7185', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 600 }}>
+            <span className={styles.tatSlower}>
               <ArrowUpRight size={14} /> {tatDifference}m slower
             </span>
           )}
-          <span style={{ color: 'var(--text-muted)' }}>vs 40 min SLA benchmark</span>
+          <span className={styles.cardFooterText}>vs 40 min SLA benchmark</span>
         </div>
       </div>
 
       {/* 4. Excise Clearance Rate */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+      <div className={`glass-card ${styles.kpiCard}`}>
+        <div className={styles.cardTop}>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            <span className={styles.cardLabel}>
               First-Pass Excise Clearance
             </span>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f8fafc', fontFamily: 'var(--font-heading)' }}>
+            <div className={styles.valueRow}>
+              <span className={styles.metricValue}>
                 {kpis.clearanceRate}%
               </span>
-              <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>
+              <span className={styles.highCompliance}>
                 High Compliance
               </span>
             </div>
           </div>
-          <div style={{ 
-            padding: '10px', 
-            borderRadius: '12px', 
-            background: 'rgba(139, 92, 246, 0.12)', 
-            color: '#a78bfa' 
-          }}>
+          <div className={`${styles.iconBox} ${styles.iconBoxViolet}`}>
             <ShieldCheck size={22} />
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', fontSize: '0.75rem' }}>
-          <span style={{ color: 'var(--text-muted)' }}>
-            Refusals: <strong style={{ color: kpis.refusalCount > 0 ? '#fb7185' : '#34d399' }}>{kpis.refusalCount} cases</strong>
+        <div className={styles.cardFooterBetween}>
+          <span className={styles.cardFooterText}>
+            Refusals: <strong className={kpis.refusalCount > 0 ? styles.refusalAlert : styles.refusalNormal}>{kpis.refusalCount} cases</strong>
           </span>
-          <span className="badge badge-cyan" style={{ fontSize: '0.7rem' }}>
+          <span className={`badge badge-cyan ${styles.slaBadge}`}>
             Portal SLA 0.22s
           </span>
         </div>

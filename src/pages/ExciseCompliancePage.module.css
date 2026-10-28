@@ -1,0 +1,138 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.topBanner {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bannerTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bannerSub {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.bannerStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.complianceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.removalsCard {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.removalsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.removalsTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.removalsSubtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.removalsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+.removalItem {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.removalMeta {
+  font-size: 0.75rem;
+  color: var(--accent-sky);
+  margin-top: 4px;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .container {
+    gap: 28px;
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .complianceGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 70px;
+    gap: 16px;
+  }
+
+  .topBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bannerStats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .removalItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+

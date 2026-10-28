@@ -1,0 +1,201 @@
+.card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.th {
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.thRight {
+  text-align: right;
+}
+
+.tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s ease;
+}
+
+.tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.carrierName {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.vehiclesVal {
+  color: #cbd5e1;
+}
+
+.casesVal {
+  color: var(--accent-sky);
+}
+
+.tatFast {
+  color: #34d399;
+}
+
+.tatSlow {
+  color: #fbbf24;
+}
+
+.slaBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slaTrack {
+  width: 60px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.slaFill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent-amber);
+}
+
+.slaFillHigh {
+  background: var(--accent-emerald);
+}
+
+.slaText {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.tierCell {
+  text-align: right;
+}
+
+.tierBadge {
+  font-size: 0.7rem;
+}
+
+.tableStateCell {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinner {
+  animation: spin 1.2s linear infinite;
+  color: var(--accent-sky);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .card {
+    padding: 30px;
+    gap: 22px;
+  }
+
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .table {
+    font-size: 0.9rem;
+  }
+
+  .td {
+    padding: 16px 14px;
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .td {
+    padding: 14px 10px;
+  }
+
+  .tierBadge {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .th,
+  .td {
+    padding: 10px 8px;
+    font-size: 0.78rem;
+  }
+}
+

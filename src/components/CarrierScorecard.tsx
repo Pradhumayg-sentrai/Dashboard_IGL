@@ -1,5 +1,6 @@
 import React from 'react';
-import { Truck, Award } from 'lucide-react';
+import { Truck, Award, Loader2, AlertTriangle, Inbox } from 'lucide-react';
+import styles from './CarrierScorecard.module.css';
 
 export interface CarrierItem {
   id: string;
@@ -50,91 +51,131 @@ export const sampleCarriers: CarrierItem[] = [
   },
 ];
 
-export const CarrierScorecard: React.FC = () => {
+interface CarrierScorecardProps {
+  carriers?: CarrierItem[];
+  isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+}
+
+export const CarrierScorecard: React.FC<CarrierScorecardProps> = ({
+  carriers = sampleCarriers,
+  isLoading = false,
+  isError = false,
+  errorMessage = 'Failed to load transporter performance records'
+}) => {
   return (
-    <div className="glass-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+    <div className={`glass-card ${styles.card}`}>
       
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+      <div className={styles.header}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className={styles.titleGroup}>
             <Truck size={20} color="#38bdf8" />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f8fafc' }}>
+            <h3 className={styles.title}>
               Transporter & Carrier Fleet SLA Scorecard
             </h3>
           </div>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+          <p className={styles.subtitle}>
             Turnaround duration and on-time staging performance by third-party transport agencies
           </p>
         </div>
 
         <span className="badge badge-cyan">
-          4 REGISTERED TRANSPORTERS
+          {carriers.length} REGISTERED TRANSPORTERS
         </span>
       </div>
 
       {/* Table */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left' }}>
-              <th style={{ padding: '10px 12px', fontWeight: 600 }}>CARRIER / TRANSPORTER</th>
-              <th style={{ padding: '10px 12px', fontWeight: 600 }}>TRUCKS LOADED</th>
-              <th style={{ padding: '10px 12px', fontWeight: 600 }}>CASES DISPATCHED</th>
-              <th style={{ padding: '10px 12px', fontWeight: 600 }}>AVG. TAT</th>
-              <th style={{ padding: '10px 12px', fontWeight: 600 }}>ON-TIME SLA</th>
-              <th style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'right' }}>TIER</th>
+            <tr>
+              <th className={styles.th}>CARRIER / TRANSPORTER</th>
+              <th className={styles.th}>TRUCKS LOADED</th>
+              <th className={styles.th}>CASES DISPATCHED</th>
+              <th className={styles.th}>AVG. TAT</th>
+              <th className={styles.th}>ON-TIME SLA</th>
+              <th className={`${styles.th} ${styles.thRight}`}>TIER</th>
             </tr>
           </thead>
           <tbody>
-            {sampleCarriers.map(carrier => (
+            {isLoading && (
+              <tr>
+                <td colSpan={6} className={styles.tableStateCell}>
+                  <div className={styles.stateBox}>
+                    <Loader2 size={24} className={styles.spinner} />
+                    <span>Loading transporter SLA records...</span>
+                  </div>
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && isError && (
+              <tr>
+                <td colSpan={6} className={styles.tableStateCell}>
+                  <div className={styles.stateBox} style={{ color: '#fb7185' }}>
+                    <AlertTriangle size={24} />
+                    <span>{errorMessage}</span>
+                  </div>
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && !isError && carriers.length === 0 && (
+              <tr>
+                <td colSpan={6} className={styles.tableStateCell}>
+                  <div className={styles.stateBox}>
+                    <Inbox size={24} />
+                    <span>No carriers registered in this fleet manifest</span>
+                  </div>
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && !isError && carriers.map(carrier => (
               <tr 
                 key={carrier.id} 
-                style={{ 
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                  transition: 'background 0.2s ease'
-                }}
+                className={styles.tr}
               >
-                <td style={{ padding: '12px', fontWeight: 600, color: '#f8fafc' }}>
+                <td className={`${styles.td} ${styles.carrierName}`}>
                   {carrier.name}
                 </td>
-                <td className="font-mono" style={{ padding: '12px', color: '#cbd5e1' }}>
+                <td className={`${styles.td} font-mono ${styles.vehiclesVal}`}>
                   {carrier.trucksDispatched} vehicles
                 </td>
-                <td className="font-mono" style={{ padding: '12px', color: '#38bdf8' }}>
+                <td className={`${styles.td} font-mono ${styles.casesVal}`}>
                   {carrier.casesCarried.toLocaleString()} cases
                 </td>
-                <td className="font-mono" style={{ padding: '12px', color: carrier.avgTatMinutes <= 35 ? '#34d399' : '#fbbf24' }}>
+                <td className={`${styles.td} font-mono ${carrier.avgTatMinutes <= 35 ? styles.tatFast : styles.tatSlow}`}>
                   {carrier.avgTatMinutes}m
                 </td>
-                <td style={{ padding: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '60px', height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ 
-                        width: `${carrier.onTimeSlaPercentage}%`, 
-                        height: '100%', 
-                        background: carrier.onTimeSlaPercentage > 95 ? '#10b981' : '#f59e0b',
-                        borderRadius: '3px'
-                      }}></div>
+                <td className={styles.td}>
+                  <div className={styles.slaBox}>
+                    <div className={styles.slaTrack}>
+                      <div 
+                        className={`${styles.slaFill} ${carrier.onTimeSlaPercentage > 95 ? styles.slaFillHigh : ''}`}
+                        style={{ width: `${carrier.onTimeSlaPercentage}%` }}
+                      ></div>
                     </div>
-                    <span className="font-mono" style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
+                    <span className={`font-mono ${styles.slaText}`}>
                       {carrier.onTimeSlaPercentage}%
                     </span>
                   </div>
                 </td>
-                <td style={{ padding: '12px', textAlign: 'right' }}>
+                <td className={`${styles.td} ${styles.tierCell}`}>
                   {carrier.status === 'preferred' && (
-                    <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>
+                    <span className={`badge badge-emerald ${styles.tierBadge}`}>
                       <Award size={11} /> PREFERRED
                     </span>
                   )}
                   {carrier.status === 'standard' && (
-                    <span className="badge badge-slate" style={{ fontSize: '0.7rem' }}>
+                    <span className={`badge badge-slate ${styles.tierBadge}`}>
                       STANDARD
                     </span>
                   )}
                   {carrier.status === 'review' && (
-                    <span className="badge badge-amber" style={{ fontSize: '0.7rem' }}>
+                    <span className={`badge badge-amber ${styles.tierBadge}`}>
                       SLA DELAY
                     </span>
                   )}

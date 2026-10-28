@@ -24,16 +24,53 @@ export interface ChartDataPoint {
   shiftA?: number;
   shiftB?: number;
   shiftC?: number;
+  previousVolume?: number;
+  shift?: 'shift_a' | 'shift_b' | 'shift_c';
+}
+
+export type IncidentSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type IncidentStatus = 'open' | 'reviewed' | 'dismissed';
+
+export interface VideoBoundingBox {
+  /** Normalized 0..1 values relative to the source video frame. */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface VideoDetection {
+  id: string;
+  label: string;
+  confidence: number;
+  bbox: VideoBoundingBox;
+  color?: string;
+  dashed?: boolean;
+  /** Optional playback window, in seconds. Omit to always render. */
+  startTime?: number;
+  endTime?: number;
 }
 
 export interface IncidentItem {
   id: number;
   type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: IncidentSeverity;
   occurred_at: string;
   barcode_value: string | null;
-  status: 'open' | 'reviewed' | 'dismissed';
+  status: IncidentStatus;
   details: string;
+  bay_id?: number;
+  bay_name?: string;
+  truck_reg?: string | null;
+  notes?: string | null;
+  dismissal_reason?: string | null;
+  reviewed_by?: string | null;
+  reviewed_by_id?: string | null;
+  reviewed_at?: string | null;
+  dismissed_by?: string | null;
+  dismissed_by_id?: string | null;
+  dismissed_at?: string | null;
+  detections?: VideoDetection[];
 }
 
 export interface RemovalItem {
@@ -46,6 +83,29 @@ export interface RemovalItem {
   authorizer: string;
   employee_id: string;
   timestamp: string;
+  requested_by?: string;
+  requested_by_id?: string;
+  requested_at?: string;
+  approved_by?: string | null;
+  approved_by_id?: string | null;
+  approved_at?: string | null;
+  hash_verified?: boolean;
+  hash?: string;
+}
+
+export type AuditAction = 'review' | 'dismiss' | 'bulk_review' | 'bulk_dismiss';
+
+export interface AuditEntry {
+  id: string;
+  /** ISO 8601 timestamp. */
+  timestamp: string;
+  actor_name: string;
+  actor_id: string;
+  action: AuditAction;
+  incident_ids: number[];
+  reason?: string;
+  notes?: string;
+  summary: string;
 }
 
 export interface SupervisorInfo {
@@ -81,6 +141,7 @@ export interface LiveBayState {
   estimatedRemainingMinutes: number;
   sessionDurationMinutes: number;
   supervisor: SupervisorInfo;
+  lastUpdated: number;
 }
 
 export const initialSupervisors: SupervisorInfo[] = [
@@ -158,6 +219,7 @@ export const initialMultiBays: LiveBayState[] = [
     estimatedRemainingMinutes: 6.0,
     sessionDurationMinutes: 24,
     supervisor: initialSupervisors[0],
+    lastUpdated: Date.now(),
   },
   {
     bayId: 2,
@@ -178,6 +240,7 @@ export const initialMultiBays: LiveBayState[] = [
     estimatedRemainingMinutes: 17.8,
     sessionDurationMinutes: 11,
     supervisor: initialSupervisors[1],
+    lastUpdated: Date.now(),
   },
   {
     bayId: 3,
@@ -198,6 +261,7 @@ export const initialMultiBays: LiveBayState[] = [
     estimatedRemainingMinutes: 0.5,
     sessionDurationMinutes: 29,
     supervisor: initialSupervisors[2],
+    lastUpdated: Date.now() - 14000,
   },
   {
     bayId: 4,
@@ -218,6 +282,7 @@ export const initialMultiBays: LiveBayState[] = [
     estimatedRemainingMinutes: 22.5,
     sessionDurationMinutes: 3,
     supervisor: initialSupervisors[3],
+    lastUpdated: Date.now() - 25000,
   },
 ];
 
@@ -351,6 +416,9 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: '0890801489635500260101102614571990',
     status: 'open',
     details: 'Free-fall acceleration detected: airborne 0.42s, accel 1.34g, speed 2.1m/s',
+    bay_id: 1,
+    bay_name: 'Bay 1',
+    truck_reg: 'UP58AT9207',
   },
   {
     id: 4271,
@@ -360,6 +428,9 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: '0890801489635500260101102614571814',
     status: 'open',
     details: 'Impact spike: box left person grasp at height 0.65m onto truck floor',
+    bay_id: 1,
+    bay_name: 'Bay 1',
+    truck_reg: 'UP58AT9207',
   },
   {
     id: 4270,
@@ -369,6 +440,9 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: null,
     status: 'open',
     details: 'Box placed in stack zone without matching recent scan within 180s correlation window',
+    bay_id: 2,
+    bay_name: 'Bay 2',
+    truck_reg: 'UP16AT5656',
   },
   {
     id: 4269,
@@ -378,6 +452,9 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: '0890801489635500260101102614512340',
     status: 'open',
     details: 'Barcode decoded at cage but never reached stack before session closure sweep',
+    bay_id: 3,
+    bay_name: 'Bay 3',
+    truck_reg: 'HR38AB1234',
   },
   {
     id: 4268,
@@ -387,6 +464,13 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: null,
     status: 'reviewed',
     details: 'Handling lane camera view obscured for > 5.0 seconds. Restored automatically.',
+    bay_id: 1,
+    bay_name: 'Bay 1',
+    truck_reg: 'UP58AT9207',
+    notes: 'Verified against adjacent camera. No handling activity during occlusion.',
+    reviewed_by: 'Anil Kumar',
+    reviewed_by_id: 'SAI-003',
+    reviewed_at: '2026-10-14T11:26:02.000Z',
   },
   {
     id: 4267,
@@ -396,6 +480,70 @@ export const sampleIncidents: IncidentItem[] = [
     barcode_value: null,
     status: 'reviewed',
     details: 'Excise portal did not respond within 8.0s hold limit. Belt stopped automatically.',
+    bay_id: 4,
+    bay_name: 'Bay 4',
+    truck_reg: 'UP65BT7890',
+    notes: 'Portal retry succeeded on second attempt. Escalated to Excise IT.',
+    reviewed_by: 'Rajesh Sharma',
+    reviewed_by_id: 'SAI-004',
+    reviewed_at: '2026-10-14T10:22:44.000Z',
+  },
+  {
+    id: 4266,
+    type: 'throw',
+    severity: 'medium',
+    occurred_at: '2026-10-13 18:22:41',
+    barcode_value: '0890801489635500260101102614500871',
+    status: 'open',
+    details: 'Carton trajectory changed abruptly mid-transfer; no visible damage on follow-up frame.',
+    bay_id: 2,
+    bay_name: 'Bay 2',
+    truck_reg: 'UP16AT5656',
+  },
+  {
+    id: 4265,
+    type: 'unscanned_box',
+    severity: 'low',
+    occurred_at: '2026-10-13 09:07:12',
+    barcode_value: null,
+    status: 'dismissed',
+    details: 'Uncorrelated box detected during shift-change handover overlap.',
+    bay_id: 3,
+    bay_name: 'Bay 3',
+    truck_reg: 'HR38AB1234',
+    notes: 'Confirmed with outgoing and incoming supervisors.',
+    dismissal_reason: 'Known shift-change overlap; box was scanned on the cage reader two seconds later.',
+    dismissed_by: 'Anil Kumar',
+    dismissed_by_id: 'SAI-003',
+    dismissed_at: '2026-10-13T09:18:07.000Z',
+  },
+  {
+    id: 4264,
+    type: 'missing_box',
+    severity: 'critical',
+    occurred_at: '2026-10-12 16:45:03',
+    barcode_value: '0890801489635500260101102614493120',
+    status: 'open',
+    details: 'Expected carton count mismatch at seal verification. Barcode absent from final stack sweep.',
+    bay_id: 4,
+    bay_name: 'Bay 4',
+    truck_reg: 'UP65BT7890',
+  },
+  {
+    id: 4263,
+    type: 'camera_blocked',
+    severity: 'low',
+    occurred_at: '2026-10-11 22:10:19',
+    barcode_value: null,
+    status: 'reviewed',
+    details: 'Brief lens flare from dock floodlight triggered a 1.8s visibility dip.',
+    bay_id: 1,
+    bay_name: 'Bay 1',
+    truck_reg: 'UP58AT9207',
+    notes: 'False positive from floodlight maintenance. Camera feed healthy.',
+    reviewed_by: 'Pawan Verma',
+    reviewed_by_id: 'SAI-005',
+    reviewed_at: '2026-10-11T22:14:51.000Z',
   },
 ];
 
@@ -407,9 +555,17 @@ export const sampleRemovals: RemovalItem[] = [
     indent_no: 'BOTTELING288987-CLB2-WHOLESALE544831-CL2-GORA-Oct26_00000070',
     barcode_value: '0890801489635500260101102614571814',
     reason: 'Damaged outer carton detected during stacking; replaced with fresh inventory',
-    authorizer: 'anil',
+    authorizer: 'Anil Kumar',
     employee_id: 'SAI-003',
     timestamp: '2026-10-14 12:58:02',
+    requested_by: 'Rajesh Sharma',
+    requested_by_id: 'SAI-004',
+    requested_at: '2026-10-14 12:57:41',
+    approved_by: 'Anil Kumar',
+    approved_by_id: 'SAI-003',
+    approved_at: '2026-10-14 12:58:02',
+    hash_verified: true,
+    hash: 'sha256:4f9a72c1e8d30b5f...c21b',
   },
   {
     id: 2,
@@ -418,9 +574,36 @@ export const sampleRemovals: RemovalItem[] = [
     indent_no: 'BOTTELING288987-CLB2-WHOLESALE544831-CL2-GORA-Oct26_00000070',
     barcode_value: '0890801489635500260101102614540662',
     reason: 'Misread case code duplicated on dispatch pass; supervisor verified and removed',
-    authorizer: 'anil',
-    employee_id: 'SAI-003',
+    authorizer: 'Avinash Singh',
+    employee_id: 'SAI-002',
     timestamp: '2026-10-14 13:00:09',
+    requested_by: 'Avinash Singh',
+    requested_by_id: 'SAI-002',
+    requested_at: '2026-10-14 13:00:09',
+    approved_by: null,
+    approved_by_id: null,
+    approved_at: null,
+    hash_verified: true,
+    hash: 'sha256:8b31d0a97c2e4f16...7be4',
+  },
+  {
+    id: 3,
+    session_id: 121,
+    truck_reg: 'UP16AT5656',
+    indent_no: 'BOTTELINGCLB102-CLB1-WHOLESALE417104-CL2-GORA-Oct26_00000536',
+    barcode_value: '0890801489635500260101102614591120',
+    reason: 'Carton seal torn during belt transfer; contents reconciled at cage',
+    authorizer: 'Pawan Verma',
+    employee_id: 'SAI-005',
+    timestamp: '2026-10-14 13:14:38',
+    requested_by: 'Pawan Verma',
+    requested_by_id: 'SAI-005',
+    requested_at: '2026-10-14 13:14:38',
+    approved_by: 'Pawan Verma',
+    approved_by_id: 'SAI-005',
+    approved_at: '2026-10-14 13:15:02',
+    hash_verified: false,
+    hash: 'sha256:pending...',
   },
 ];
 

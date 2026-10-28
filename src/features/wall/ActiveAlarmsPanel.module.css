@@ -1,0 +1,132 @@
+.panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.alarmGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.alarmCard {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-left: 4px solid var(--accent-rose);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.alarmCardWarning {
+  border-color: rgba(245, 158, 11, 0.3);
+  border-left-color: var(--accent-amber);
+}
+
+.alarmLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alarmIconRose {
+  color: var(--accent-rose);
+  flex-shrink: 0;
+}
+
+.alarmIconAmber {
+  color: var(--accent-amber);
+  flex-shrink: 0;
+}
+
+.alarmBayName {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.alarmCause {
+  font-size: 0.78rem;
+  color: #fb7185;
+  margin-top: 2px;
+}
+
+.alarmCauseAmber {
+  color: #fbbf24;
+}
+
+.alarmMeta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.alarmActionBtn {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+}
+
+.noAlarmsCard {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #34d399;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .alarmBayName {
+    font-size: 1rem;
+  }
+
+  .alarmCause {
+    font-size: 0.88rem;
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .alarmActionBtn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+

@@ -1,0 +1,31 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.kpiSection {
+  margin-bottom: 2px;
+}
+
+.scorecardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .container {
+    gap: 28px;
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 70px;
+    gap: 16px;
+  }
+}
+

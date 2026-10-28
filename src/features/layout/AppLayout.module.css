@@ -1,0 +1,35 @@
+.layoutContainer {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 20px;
+  margin-top: 24px;
+}
+
+.footerMeta {
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .layoutContainer {
+    max-width: 1840px;
+    padding: 24px 32px;
+  }
+}
+
+/* 768px Handhelds: Account for fixed BottomNav */
+@media (max-width: 768px) {
+  .layoutContainer {
+    padding: 14px 14px 80px;
+  }
+}
+

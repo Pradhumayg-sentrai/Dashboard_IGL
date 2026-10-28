@@ -1,0 +1,27 @@
+.focusedBayWrapper {
+  margin-bottom: 24px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.footerMeta {
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .footer {
+    font-size: 0.85rem;
+    padding-top: 28px;
+    margin-top: 20px;
+  }
+}
+

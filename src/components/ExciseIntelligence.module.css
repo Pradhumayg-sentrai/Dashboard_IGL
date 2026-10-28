@@ -1,0 +1,185 @@
+.card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.paretoHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.paretoList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paretoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.paretoTop {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.reasonText {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.countText {
+  font-weight: 600;
+}
+
+.paretoTrack {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.paretoFill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.chuteBox {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.chuteTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.chuteGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.chuteAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionPct {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.actionDesc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.spinner {
+  animation: spin 1.2s linear infinite;
+  color: var(--accent-sky);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .card {
+    padding: 30px;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .paretoTop {
+    font-size: 0.9rem;
+  }
+
+  .actionPct {
+    font-size: 1.15rem;
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .chuteGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chuteGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+

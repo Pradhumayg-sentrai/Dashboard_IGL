@@ -1,0 +1,44 @@
+.wallContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kpiWrapper {
+  margin-bottom: -6px;
+}
+
+.wallMainGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+/* 1920x1080 Control Room Wall Display Mode: Fits one screen without scrolling */
+@media (min-width: 1800px) {
+  .wallContainer {
+    max-height: calc(100vh - 120px);
+    overflow: hidden;
+    gap: 16px;
+  }
+
+  .wallMainGrid {
+    grid-template-columns: 1.45fr 1fr;
+    max-height: calc(100vh - 280px);
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .wallMainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .wallContainer {
+    padding-bottom: 70px;
+  }
+}
+

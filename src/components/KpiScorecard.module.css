@@ -1,0 +1,193 @@
+.kpiCard {
+  padding: 20px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.cardLabel {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.metricValue {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+.metricSub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metricSubMins {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.iconBox {
+  padding: 10px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBoxCyan {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent-sky);
+}
+
+.iconBoxEmerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.iconBoxAmber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+
+.iconBoxViolet {
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.progressFooter {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.attainmentAchieved {
+  color: var(--accent-sky);
+  font-weight: 600;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cardFooterText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.tatRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 0.78rem;
+}
+
+.tatFaster {
+  color: #34d399;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.tatSlower {
+  color: #fb7185;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.highCompliance {
+  font-size: 0.8rem;
+  color: #34d399;
+  font-weight: 600;
+}
+
+.cardFooterBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 0.75rem;
+}
+
+.refusalAlert {
+  color: #fb7185;
+}
+
+.refusalNormal {
+  color: #34d399;
+}
+
+.slaBadge {
+  font-size: 0.7rem;
+}
+
+/* 1920px+ Wall Displays */
+@media (min-width: 1920px) {
+  .kpiCard {
+    padding: 26px;
+  }
+
+  .metricValue {
+    font-size: 2.3rem;
+  }
+
+  .cardLabel {
+    font-size: 0.95rem;
+  }
+}
+
+/* 1024px Tablets */
+@media (max-width: 1024px) {
+  .kpiCard {
+    padding: 18px;
+  }
+}
+
+/* 768px Handhelds */
+@media (max-width: 768px) {
+  .kpiCard {
+    padding: 16px;
+  }
+
+  .metricValue {
+    font-size: 1.6rem;
+  }
+}
+
