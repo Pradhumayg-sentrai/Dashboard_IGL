@@ -531,42 +531,6 @@ export function getChartDataForTimeframe(timeframe: Timeframe): ChartDataPoint[]
   }
 }
 
-/**
- * One-minute samples for the wall's Plant Pulse. The realtime source is
- * captured every five minutes, so interpolate between anchors to give the
- * wall a true per-minute pulse over the rolling 60-minute window.
- */
-export function getPlantPulseSamples(): ChartDataPoint[] {
-  const anchors = getChartDataForTimeframe('realtime');
-  if (anchors.length === 0) return [];
-
-  const [startHour, startMinute] = anchors[0].label.split(':').map(Number);
-  const totalMinutes = (anchors.length - 1) * 5;
-  const samples: ChartDataPoint[] = [];
-
-  for (let minute = 0; minute <= totalMinutes; minute += 1) {
-    const position = minute / 5;
-    const lowerIndex = Math.floor(position);
-    const upperIndex = Math.min(anchors.length - 1, Math.ceil(position));
-    const mix = position - lowerIndex;
-    const lower = anchors[lowerIndex];
-    const upper = anchors[upperIndex];
-    const base = lower.volume + (upper.volume - lower.volume) * mix;
-    // A small deterministic wiggle keeps the minute-level line from looking ruled.
-    const wobble = mix === 0 ? 0 : Math.sin(minute * 1.7) * 0.18;
-    const clockMinutes = startHour * 60 + startMinute + minute;
-    const label = `${String(Math.floor(clockMinutes / 60) % 24).padStart(2, '0')}:${String(clockMinutes % 60).padStart(2, '0')}`;
-
-    samples.push({
-      label,
-      volume: Number(Math.max(0, base + wobble).toFixed(1)),
-      target: lower.target,
-    });
-  }
-
-  return samples;
-}
-
 export const sampleIncidents: IncidentItem[] = [
   {
     id: 4272,

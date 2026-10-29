@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Factory, UserCheck, SlidersHorizontal, ShieldCheck } from 'lucide-react';
+import { BarChart3, CircleHelp, LayoutDashboard, SlidersHorizontal } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
 export const BottomNav: React.FC = () => {
@@ -9,24 +9,16 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav className={styles.bottomNav} aria-label="Mobile Navigation">
-      <NavLink 
-        to="/wall" 
+      <NavLink
+        to="/wall"
         className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
       >
-        <Factory size={18} />
-        <span>Manager</span>
+        <LayoutDashboard size={18} />
+        <span>Overview</span>
       </NavLink>
 
-      <NavLink 
-        to="/plant" 
-        className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
-      >
-        <UserCheck size={18} />
-        <span>Supervisor</span>
-      </NavLink>
-
-      <NavLink 
-        to="/bay/1" 
+      <NavLink
+        to="/bay/1"
         className={`${styles.navItem} ${isBaysRoute ? styles.navItemActive : ''}`}
         aria-current={isBaysRoute ? 'page' : undefined}
       >
@@ -34,14 +26,21 @@ export const BottomNav: React.FC = () => {
         <span>Bays</span>
       </NavLink>
 
-      <NavLink 
-        to="/excise" 
+      <NavLink
+        to="/plant"
         className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
       >
-        <ShieldCheck size={18} />
-        <span>Excise</span>
+        <BarChart3 size={18} />
+        <span>Reports</span>
+      </NavLink>
+
+      <NavLink
+        to="/help"
+        className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+      >
+        <CircleHelp size={18} />
+        <span>Help</span>
       </NavLink>
     </nav>
   );
 };
-

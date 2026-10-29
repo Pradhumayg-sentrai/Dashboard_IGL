@@ -4,6 +4,31 @@
   gap: var(--space-3);
 }
 
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.pageSubtitle {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.reportLink {
+  min-height: 42px;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
 .splitGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

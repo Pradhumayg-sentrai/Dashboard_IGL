@@ -19,25 +19,24 @@
 }
 
 .bayNavTitle {
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .fleetLink {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--accent-text);
   text-decoration: none;
-  padding: 2px var(--space-2);
+  min-height: 42px;
+  padding: 0 var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
 }
@@ -56,14 +55,13 @@
 .tabBtn {
   min-width: 0;
   padding: 5px var(--space-2);
-  min-height: 38px;
+  min-height: 48px;
   border-radius: var(--radius-md);
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-muted);
   background: var(--surface);
   border: 1px solid var(--border);
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -91,29 +89,31 @@
   min-width: 0;
 }
 
-.tabStatusIcon {
-  display: inline-flex;
+.tabStatusDot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
 .tabStatusLoading {
-  color: var(--ok);
+  background: var(--ok);
 }
 
 .tabStatusStopped {
-  color: var(--critical);
+  background: var(--critical);
 }
 
 .tabStatusPreparing {
-  color: var(--warn);
+  background: var(--warn);
 }
 
 .tabStatusStandby {
-  color: var(--text-muted);
+  background: var(--text-muted);
 }
 
 .tabDock {
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-muted);
   overflow: hidden;
@@ -131,6 +131,7 @@
   display: grid;
   grid-template-columns: 1.35fr 1fr;
   gap: var(--space-3);
+  align-items: start;
 }
 
 .incidentsPanel {
@@ -149,16 +150,18 @@
 }
 
 .incidentsTitle {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
+.incidentsTitleText {
+  font-size: 1.125rem;
+  color: var(--text);
+}
+
 .incidentsSubtitle {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -172,13 +175,11 @@
 
 .incidentItem {
   background: var(--surface-alt);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-2);
 }
 
@@ -189,11 +190,18 @@
   min-width: 0;
 }
 
-.incidentMetaRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+.incidentType {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.incidentTime {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
 .incidentActions {
@@ -201,32 +209,28 @@
   align-items: center;
   gap: var(--space-1);
   flex-wrap: wrap;
+  padding-left: 4px;
 }
 
-.incidentType {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--text);
-  text-transform: capitalize;
+.incidentCallBtn {
+  min-height: 44px;
+  font-size: 1rem;
 }
 
-.incidentTime {
-  font-size: 0.6875rem;
+.actionBtn {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
+  border-color: var(--border);
+  white-space: nowrap;
 }
 
-.incidentDetails {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.incidentBarcode {
-  font-size: 0.6875rem;
+.actionBtn:hover:not(:disabled) {
   color: var(--accent-text);
-  margin-top: 2px;
-  font-family: var(--font-mono);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
 }
 
 .incidentsEmpty {
@@ -237,29 +241,10 @@
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
   color: var(--ok-text);
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
-.incidentItem .actionBtn {
-  font-size: 0.75rem;
-  padding: 0 var(--space-2);
-  min-height: 26px;
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--surface);
-}
-
-.incidentItem .actionBtnReview {
-  color: var(--ok-text);
-  border-color: var(--ok-border);
-}
-
-.incidentItem .actionBtnReview:hover:not(:disabled) {
-  background: var(--ok-bg);
-}
-
-/* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .container {
     gap: var(--space-4);
@@ -267,6 +252,10 @@
 
   .bayGridSection {
     grid-template-columns: 1.4fr 1fr;
+  }
+
+  .incidentsTitleText {
+    font-size: 1.25rem;
   }
 }
 
@@ -277,25 +266,12 @@
   }
 }
 
-/* 1024px Tablets */
 @media (max-width: 1024px) {
   .bayGridSection {
     grid-template-columns: 1fr;
   }
-
-  .tabBtn {
-    min-height: 44px;
-    padding: 5px var(--space-2);
-  }
-
-  .actionBtn {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
 }
 
-/* 768px Handhelds */
 @media (max-width: 768px) {
   .container {
     padding-bottom: 70px;
@@ -316,16 +292,26 @@
 
   .tabBtn {
     padding: 5px 2px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 
   .tabMain {
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     white-space: nowrap;
   }
 
   .tabDock {
     display: none;
+  }
+
+  .incidentActions {
+    width: 100%;
+  }
+
+  .incidentCallBtn,
+  .actionBtn {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }

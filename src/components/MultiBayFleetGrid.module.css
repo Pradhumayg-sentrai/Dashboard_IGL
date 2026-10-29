@@ -1,5 +1,8 @@
 .card {
   padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .banner {
@@ -15,7 +18,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
 }
 
 .title {
@@ -27,75 +29,48 @@
 .fleetMetrics {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 
-.statusBadge {
-  padding: 3px var(--space-2);
-}
-
-.combinedPace {
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-border);
-  padding: 0 var(--space-3);
-  min-height: 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  color: var(--accent-text);
-  white-space: nowrap;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.paceHighlight {
-  color: var(--text);
-  font-weight: 700;
+.fleetMetrics :global(.badge),
+.bayHeader :global(.badge) {
+  font-size: 1rem;
+  min-height: 32px;
+  padding: 0 var(--space-2);
 }
 
 .baysGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--space-2);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+  padding-right: 2px;
+  scrollbar-width: thin;
 }
 
 .bayCard {
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-2);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   transition: border-color 0.15s ease, background-color 0.15s ease;
-  box-shadow: none;
 }
 
 .bayCard:hover {
   border-color: var(--border-strong);
 }
 
-.bayCardSelected {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-}
-
-.bayCardStale {
-  opacity: 0.7;
-  border-color: var(--warn-border);
-  background: var(--warn-bg);
-}
-
-.bayCardStale:hover {
-  opacity: 0.9;
-}
-
-.staleBadge {
-  padding: 2px var(--space-2);
-  font-size: 0.6875rem;
+.bayCardStopped {
+  border-color: var(--critical-border);
+  background: var(--surface);
 }
 
 .bayHeader {
@@ -103,11 +78,9 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-2);
-  flex-wrap: nowrap;
 }
 
-.bayHeaderLeft {
-  flex: 1 1 auto;
+.bayIdentity {
   min-width: 0;
 }
 
@@ -119,109 +92,86 @@
 }
 
 .bayName {
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .dockLocation {
-  font-size: 0.75rem;
+  display: block;
+  margin-top: 2px;
+  font-size: 1rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.baySub {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-  max-width: 100%;
+.problem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--critical-bg);
+  border: 1px solid var(--critical-border);
+  color: var(--critical-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.problem svg {
+  flex: none;
+}
+
+.truckRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.truckReg {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.stopCause {
-  color: var(--critical-text);
-  font-weight: 600;
-}
-
-.vehicleBox {
-  background: var(--surface);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.vehicleLeft {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.infoLabel {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.vehicleReg {
-  font-size: 0.8125rem;
-  font-weight: 700;
   color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-
-.paceRight {
-  text-align: right;
-}
-
-.paceValue {
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.paceActive {
-  color: var(--ok-text);
-}
-
-.paceInactive {
-  color: var(--text-muted);
 }
 
 .progressHeader {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: var(--space-2);
-  font-size: 0.75rem;
   margin-bottom: var(--space-1);
+  font-size: 1rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
 }
 
-.progressLabel {
+.progressLabel strong {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeLeft {
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.progressStrong {
-  color: var(--text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.progressPct {
-  color: var(--accent-text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
 .progressTrack {
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
@@ -239,87 +189,27 @@
   background: var(--critical);
 }
 
-.etaInline {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-}
-
-.progressRight {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0;
-}
-
-.supervisorRow {
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.supervisorLeft {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--on-accent);
-  flex: none;
-}
-
-.supervisorName {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text);
+.cardActions {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
 }
 
-.supervisorSub {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
+.callBtn {
+  flex: 1 1 auto;
 }
 
-.phoneHighlight {
-  color: var(--accent-text);
-  font-variant-numeric: tabular-nums;
+.detailsBtn {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: 600;
+  flex: none;
 }
 
-.phoneIcon {
-  display: inline;
-}
-
-.inspectBtn {
-  font-size: 0.75rem;
-  padding: 0 var(--space-2);
-  min-height: 26px;
-  color: var(--text-muted);
-  border-color: var(--border);
-  white-space: nowrap;
-}
-
-.inspectBtn.inspectBtnSelected {
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-}
-
-/* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .card {
     padding: var(--space-4);
@@ -329,62 +219,36 @@
     font-size: 1.25rem;
   }
 
-  .baysGrid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--space-3);
-  }
-
   .bayCard {
     padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .bayName {
+    font-size: 1.125rem;
+  }
+
+  .truckReg {
+    font-size: 1.0625rem;
+  }
+
+  .progressHeader {
+    font-size: 1.0625rem;
   }
 }
 
-/* 1024px Tablets and Touch Screens */
-@media (max-width: 1024px) {
-  .baysGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .inspectBtn {
-    min-height: 44px;
-    min-width: 80px;
-    font-size: 0.8125rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .statusBadge {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .combinedPace {
-    min-height: 44px;
-  }
-}
-
-/* 768px Small Tablets & Handhelds */
 @media (max-width: 768px) {
-  .card {
-    padding: var(--space-3);
-  }
-
-  .baysGrid {
-    grid-template-columns: 1fr;
-  }
-
   .banner {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .fleetMetrics {
-    width: 100%;
+  .cardActions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .bayHeader {
-    flex-wrap: wrap;
+  .detailsBtn {
+    width: 100%;
   }
 }

@@ -1,19 +1,15 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Truck,
-  Factory,
-  SlidersHorizontal,
-  ShieldCheck,
-  Activity,
-  Calendar,
   BarChart3,
-  TrendingUp,
-  Play,
-  Pause,
+  CircleHelp,
   Clock,
   Download,
-  UserCheck
+  LayoutDashboard,
+  Pause,
+  Play,
+  SlidersHorizontal,
+  Truck,
 } from 'lucide-react';
 import {
   useTimeframe,
@@ -21,7 +17,7 @@ import {
   useIsSimulating,
   useToggleSimulation,
   useBays,
-  useDashboardStore
+  useDashboardStore,
 } from '../../store/dashboardStore';
 import { exportDispatchReportCSV } from '../../utils/exportReport';
 import { ConnectionStatus } from '../../components/ConnectionStatus';
@@ -39,10 +35,9 @@ export const Navbar: React.FC = () => {
   const currentTime = new Date().toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit'
   });
 
-  const isPlant = location.pathname === '/plant';
+  const isReports = location.pathname === '/plant' || location.pathname === '/excise';
   const isBay = location.pathname.startsWith('/bay/');
 
   const handleExport = () => {
@@ -52,77 +47,72 @@ export const Navbar: React.FC = () => {
   return (
     <header className={`card ${styles.navHeader}`}>
       <div className={styles.topRow}>
-
-        {/* Brand & Identity */}
         <div className={styles.brandGroup}>
           <div className={styles.brandIcon}>
             <Truck size={20} color="var(--on-accent)" />
           </div>
           <div>
-            <h1 className={styles.brandTitle}>
-              IGL Dispatch & Surveillance
-            </h1>
-            <p className={styles.brandSubtitle}>
-              India Glycols Limited • Gorakhpur
-            </p>
+            <h1 className={styles.brandTitle}>IGL Loading Bays</h1>
+            <p className={styles.brandSubtitle}>India Glycols Limited • Gorakhpur</p>
           </div>
         </div>
 
-        {/* Primary Role-Based Navigation Links */}
         <nav className={styles.routeLinks} aria-label="Main Navigation">
           <NavLink
             to="/wall"
             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
           >
-            <Factory size={15} />
-            <span>Plant Manager</span>
-          </NavLink>
-          <NavLink
-            to="/plant"
-            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
-          >
-            <UserCheck size={15} />
-            <span>Supervisor</span>
+            <LayoutDashboard size={16} />
+            <span>Overview</span>
           </NavLink>
           <NavLink
             to="/bay/1"
             className={`${styles.navLink} ${isBay ? styles.navLinkActive : ''}`}
             aria-current={isBay ? 'page' : undefined}
           >
-            <SlidersHorizontal size={15} />
-            <span>Bay Cockpit</span>
+            <SlidersHorizontal size={16} />
+            <span>Bays</span>
           </NavLink>
           <NavLink
-            to="/excise"
+            to="/plant"
+            className={`${styles.navLink} ${isReports ? styles.navLinkActive : ''}`}
+            aria-current={isReports ? 'page' : undefined}
+          >
+            <BarChart3 size={16} />
+            <span>Reports</span>
+          </NavLink>
+          <NavLink
+            to="/help"
             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
           >
-            <ShieldCheck size={15} />
-            <span>Excise & Audit</span>
+            <CircleHelp size={16} />
+            <span>Help</span>
           </NavLink>
         </nav>
 
-        {/* Global Controls & Clock */}
         <div className={styles.controlsGroup}>
-          <button
-            onClick={toggleSimulation}
-            className={`btn-action btn-ghost ${styles.simBtn} ${isSimulating ? styles.simBtnActive : ''}`}
-            title="Toggle live carton feed simulation ticker"
-            aria-label="Toggle live carton feed simulation"
-          >
-            {isSimulating ? <Pause size={14} /> : <Play size={14} />}
-            <span>{isSimulating ? 'Simulating' : 'Resume'}</span>
-          </button>
+          {isReports && (
+            <>
+              <button
+                onClick={toggleSimulation}
+                className={`btn-action btn-ghost ${styles.simBtn} ${isSimulating ? styles.simBtnActive : ''}`}
+                title="Pause or resume the screen updates"
+                aria-label="Pause or resume screen updates"
+              >
+                {isSimulating ? <Pause size={14} /> : <Play size={14} />}
+                <span>{isSimulating ? 'Pause updates' : 'Resume updates'}</span>
+              </button>
 
-          {isPlant && (
-            <button
-              onClick={handleExport}
-              className={`btn-action btn-primary ${styles.exportBtn}`}
-              title="Download complete plant dispatch CSV report"
-              aria-label="Export plant report CSV"
-            >
-              <Download size={14} />
-              <span>Export CSV</span>
-            </button>
+              <button
+                onClick={handleExport}
+                className={`btn-action btn-primary ${styles.exportBtn}`}
+                title="Download the plant report"
+                aria-label="Download plant report"
+              >
+                <Download size={14} />
+                <span>Download report</span>
+              </button>
+            </>
           )}
 
           <ConnectionStatus />
@@ -130,43 +120,36 @@ export const Navbar: React.FC = () => {
           <div className={styles.timeBadge}>
             <Clock size={13} color="var(--accent)" />
             <span className={`font-mono ${styles.timeVal}`}>{currentTime}</span>
-            <span className={styles.timeZone}>IST</span>
           </div>
         </div>
-
       </div>
 
-      {/* Timeframe selector is the only contextual control; page headers carry the rest */}
-      {isPlant && (
+      {isReports && (
         <div className={styles.contextualRow}>
           <div className={styles.timeframeTabs}>
             <button
               className={`btn-tab ${timeframe === 'realtime' ? 'active' : ''}`}
               onClick={() => setTimeframe('realtime')}
             >
-              <Activity size={14} />
-              Real-Time
+              Live
             </button>
             <button
               className={`btn-tab ${timeframe === 'daily' ? 'active' : ''}`}
               onClick={() => setTimeframe('daily')}
             >
-              <Calendar size={14} />
-              Daily
+              Today
             </button>
             <button
               className={`btn-tab ${timeframe === 'monthly' ? 'active' : ''}`}
               onClick={() => setTimeframe('monthly')}
             >
-              <BarChart3 size={14} />
-              Monthly
+              This month
             </button>
             <button
               className={`btn-tab ${timeframe === 'yearly' ? 'active' : ''}`}
               onClick={() => setTimeframe('yearly')}
             >
-              <TrendingUp size={14} />
-              Yearly
+              This year
             </button>
           </div>
         </div>

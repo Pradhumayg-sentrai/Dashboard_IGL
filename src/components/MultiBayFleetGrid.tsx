@@ -1,228 +1,129 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { LiveBayState } from '../data/plantData';
-import { 
-  Truck, 
-  UserCheck, 
-  ExternalLink, 
-  Phone, 
-  SlidersHorizontal
-} from 'lucide-react';
+import { AlertTriangle, SlidersHorizontal, Truck } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
+import { CallSupervisorButton } from './CallSupervisorButton';
+import { plainBayStatus, plainStopCause } from '../utils/plainLanguage';
 import styles from './MultiBayFleetGrid.module.css';
 
 interface MultiBayFleetGridProps {
   bays: LiveBayState[];
-  selectedBayId: number | 'all';
-  onSelectBay: (bayId: number | 'all') => void;
-  onToggleBayBelt: (bayId: number) => void;
+  onSelectBay: (bayId: number) => void;
 }
 
-export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
-  bays,
-  selectedBayId,
-  onSelectBay,
-}) => {
-  const [now, setNow] = useState<number>(Date.now());
+const statusKind = (status: LiveBayState['status']) => {
+  switch (status) {
+    case 'loading':
+      return 'loading' as const;
+    case 'stopped':
+      return 'stopped' as const;
+    case 'preparing':
+      return 'preparing' as const;
+    default:
+      return 'standby' as const;
+  }
+};
 
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const activeCount = bays.filter(b => b.status === 'loading').length;
-  const stoppedCount = bays.filter(b => b.status === 'stopped').length;
-  const preparingCount = bays.filter(b => b.status === 'preparing').length;
-  const standbyCount = bays.filter(b => b.status === 'standby').length;
-  const totalFleetPace = bays.reduce((acc, b) => acc + (b.beltState === 'running' ? b.paceCpm : 0), 0);
+export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({ bays, onSelectBay }) => {
+  const activeCount = bays.filter(bay => bay.status === 'loading').length;
+  const stoppedCount = bays.filter(bay => bay.status === 'stopped').length;
+  const preparingCount = bays.filter(bay => bay.status === 'preparing').length;
+  const standbyCount = bays.filter(bay => bay.status === 'standby').length;
 
   return (
-    <div className={`card ${styles.card}`}>
-      
-      {/* Top Banner with Fleet Summary */}
+    <section className={`card ${styles.card}`} aria-labelledby="loading-bays-title">
       <div className={styles.banner}>
-        <div>
-          <div className={styles.titleRow}>
-            <SlidersHorizontal size={18} color="var(--accent)" />
-            <h2 className={styles.title}>
-              Multi-Bay Fleet Operations
-            </h2>
-          </div>
+        <div className={styles.titleRow}>
+          <SlidersHorizontal size={19} color="var(--accent)" aria-hidden="true" />
+          <h2 id="loading-bays-title" className={styles.title}>
+            Loading bays
+          </h2>
         </div>
 
-        {/* Fleet Metrics Pills */}
         <div className={styles.fleetMetrics}>
-          {activeCount > 0 && (
-            <StatusBadge kind="loading" className={styles.statusBadge}>
-              {activeCount} Loading
-            </StatusBadge>
-          )}
-          {stoppedCount > 0 && (
-            <StatusBadge kind="stopped" className={styles.statusBadge}>
-              {stoppedCount} Stoppage
-            </StatusBadge>
-          )}
-          {preparingCount > 0 && (
-            <StatusBadge kind="preparing" className={styles.statusBadge}>
-              {preparingCount} Staging
-            </StatusBadge>
-          )}
-          {standbyCount > 0 && (
-            <StatusBadge kind="standby" className={styles.statusBadge}>
-              {standbyCount} Standby
-            </StatusBadge>
-          )}
-          <div className={styles.combinedPace}>
-            <span>Combined Pace:</span>{' '}
-            <strong className={styles.paceHighlight}>
-              {Math.round(totalFleetPace * 60).toLocaleString()}
-            </strong>{' '}
-            <span>cartons/hr</span>
-          </div>
+          {activeCount > 0 && <StatusBadge kind="loading">{activeCount} loading</StatusBadge>}
+          {stoppedCount > 0 && <StatusBadge kind="stopped">{stoppedCount} stopped</StatusBadge>}
+          {preparingCount > 0 && <StatusBadge kind="preparing">{preparingCount} getting ready</StatusBadge>}
+          {standbyCount > 0 && <StatusBadge kind="standby">{standbyCount} waiting</StatusBadge>}
         </div>
       </div>
 
-      {/* Concurrent Bays Grid */}
       <div className={styles.baysGrid}>
         {bays.map(bay => {
-          const isSelected = selectedBayId === bay.bayId;
-          const pct = Math.min(100, (bay.loadedQty / bay.allocatedQty) * 100);
-          const staleAgeMs = now - (bay.lastUpdated || 0);
-          const isStale =
-            bay.status === 'loading' &&
-            bay.beltState === 'running' &&
-            staleAgeMs > 10000;
-          const staleSeconds = Math.floor(staleAgeMs / 1000);
+          const percentLoaded = Math.min(100, (bay.loadedQty / bay.allocatedQty) * 100);
+          const isStopped = bay.status === 'stopped';
+          const reason = isStopped ? plainStopCause(bay.stopCause) : undefined;
 
           return (
-            <div 
+            <article
               key={bay.bayId}
-              className={`${styles.bayCard} ${isSelected ? styles.bayCardSelected : ''} ${isStale ? styles.bayCardStale : ''}`}
+              className={`${styles.bayCard} ${isStopped ? styles.bayCardStopped : ''}`}
+              aria-label={`${bay.bayName}, ${plainBayStatus(bay.status)}`}
             >
-              {/* Bay Name & Status Badge */}
               <div className={styles.bayHeader}>
-                <div className={styles.bayHeaderLeft}>
+                <div className={styles.bayIdentity}>
                   <div className={styles.bayNameRow}>
-                    <span className={styles.bayName}>
-                      {bay.bayName}
-                    </span>
-                    <span className={styles.dockLocation}>
-                      • {bay.dockLocation}
-                    </span>
-                  </div>
-                  {bay.status === 'stopped' && (
-                    <div className={styles.baySub} title={bay.stopCause || undefined}>
-                      <strong className={styles.stopCause}>{bay.stopCause}</strong>
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  {isStale && (
-                    <StatusBadge
-                      kind="stale"
-                      className={styles.staleBadge}
-                      title={`Telemetry feed paused for ${staleSeconds}s (>10s threshold)`}
-                    >
-                      Data stale ({staleSeconds}s)
+                    <span className={styles.bayName}>{bay.bayName}</span>
+                    <StatusBadge kind={statusKind(bay.status)}>
+                      {plainBayStatus(bay.status)}
                     </StatusBadge>
-                  )}
-                  <StatusBadge
-                    kind={
-                      bay.status === 'loading'
-                        ? 'loading'
-                        : bay.status === 'stopped'
-                          ? 'stopped'
-                          : bay.status === 'preparing'
-                            ? 'preparing'
-                            : 'standby'
-                    }
-                  >
-                    {bay.status}
-                  </StatusBadge>
+                  </div>
+                  <span className={styles.dockLocation}>{bay.dockLocation}</span>
                 </div>
               </div>
 
-              {/* Target Vehicle & Slip */}
-              <div className={styles.vehicleBox}>
-                <div className={styles.vehicleLeft}>
-                  <Truck size={16} color="var(--accent)" />
-                  <div>
-                    <div className={styles.infoLabel}>Vehicle</div>
-                    <div className={`font-mono ${styles.vehicleReg}`}>
-                      {bay.truckReg || 'No Vehicle'}
-                    </div>
-                  </div>
+              {isStopped && reason && (
+                <div className={styles.problem}>
+                  <AlertTriangle size={16} aria-hidden="true" />
+                  <span>{reason}</span>
                 </div>
+              )}
 
-                <div className={styles.paceRight}>
-                  <div className={styles.infoLabel}>Pace</div>
-                  <div
-                    className={`font-mono ${styles.paceValue} ${bay.paceCpm > 0 ? styles.paceActive : styles.paceInactive}`}
-                    title={`${Math.round(bay.paceCpm * 60).toLocaleString()} cartons per hour`}
-                  >
-                    {bay.paceCpm > 0 ? `${Math.round(bay.paceCpm * 60).toLocaleString()} c/hr` : '0 c/hr'}
-                  </div>
-                </div>
+              <div className={styles.truckRow}>
+                <Truck size={17} color="var(--accent)" aria-hidden="true" />
+                <span className={`font-mono ${styles.truckReg}`}>
+                  {bay.truckReg || 'No truck yet'}
+                </span>
               </div>
 
-              {/* Loading Progress Bar */}
               <div>
                 <div className={styles.progressHeader}>
                   <span className={styles.progressLabel}>
-                    Progress: <strong className={styles.progressStrong}>{bay.loadedQty} / {bay.allocatedQty} cases</strong>
+                    <strong>{bay.loadedQty.toLocaleString()}</strong> of{' '}
+                    {bay.allocatedQty.toLocaleString()} cartons
                   </span>
-                  <span className={styles.progressRight}>
-                    {bay.status === 'loading' && (
-                      <span className={styles.etaInline}>~{bay.estimatedRemainingMinutes}m</span>
-                    )}
-                    <span className={`font-mono ${styles.progressPct}`}>
-                      {pct.toFixed(1)}%
+                  {bay.status === 'loading' && (
+                    <span className={styles.timeLeft}>
+                      About {Math.max(1, Math.round(bay.estimatedRemainingMinutes))} min left
                     </span>
-                  </span>
+                  )}
                 </div>
                 <div className={styles.progressTrack}>
-                  <div 
-                    className={`${styles.progressFill} ${bay.status === 'stopped' ? styles.progressFillStopped : ''}`}
-                    style={{ width: `${pct}%` }}
-                  ></div>
+                  <div
+                    className={`${styles.progressFill} ${isStopped ? styles.progressFillStopped : ''}`}
+                    style={{ width: `${percentLoaded}%` }}
+                  />
                 </div>
               </div>
 
-              {/* Assigned Supervisor Pill */}
-              <div className={styles.supervisorRow}>
-                <div className={styles.supervisorLeft}>
-                  <div 
-                    className={styles.avatar}
-                    style={{ backgroundColor: bay.supervisor.avatarColor }}
-                  >
-                    {bay.supervisor.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <div className={styles.supervisorName}>
-                      <UserCheck size={12} color="var(--ok)" />
-                      {bay.supervisor.name}
-                    </div>
-                    <div className={styles.supervisorSub}>
-                      ID: {bay.supervisor.employeeId} • <span className={styles.phoneHighlight}><Phone size={10} className={styles.phoneIcon} /> {bay.supervisor.phoneExt}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button 
+              <div className={styles.cardActions}>
+                <CallSupervisorButton
+                  bay={bay}
+                  reason={reason}
+                  className={styles.callBtn}
+                />
+                <button
+                  type="button"
+                  className={`btn-action btn-ghost ${styles.detailsBtn}`}
                   onClick={() => onSelectBay(bay.bayId)}
-                  className={`btn-action btn-ghost ${styles.inspectBtn} ${isSelected ? styles.inspectBtnSelected : ''}`}
-                  aria-label={isSelected ? `Focused on ${bay.bayName}` : `Inspect ${bay.bayName}`}
                 >
-                  <ExternalLink size={12} />
-                  {isSelected ? 'Focused' : 'Inspect'}
+                  See bay
                 </button>
               </div>
-
-            </div>
+            </article>
           );
         })}
       </div>
-
-    </div>
+    </section>
   );
 };

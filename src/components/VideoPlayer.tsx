@@ -39,6 +39,8 @@ export interface VideoPlayerProps {
   poster?: string;
   className?: string;
   ariaLabel?: string;
+  /** Hide detection labels, confidence scores and technical fallback text. */
+  plainMode?: boolean;
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -52,6 +54,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   poster,
   className,
   ariaLabel = 'Incident camera playback with detection overlays',
+  plainMode = false,
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -141,20 +144,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       context.strokeRect(x, y, boxWidth, boxHeight);
 
-      const confidence = Math.round(detection.confidence * 100);
-      const label = `${detection.label} ${confidence}%`;
-      context.font = '600 11px ui-monospace, SFMono-Regular, Menlo, monospace';
-      const labelWidth = context.measureText(label).width + 12;
-      const labelHeight = 20;
-      const labelY = Math.max(0, y - labelHeight);
+      if (!plainMode) {
+        const confidence = Math.round(detection.confidence * 100);
+        const label = `${detection.label} ${confidence}%`;
+        context.font = '600 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+        const labelWidth = context.measureText(label).width + 12;
+        const labelHeight = 20;
+        const labelY = Math.max(0, y - labelHeight);
 
-      context.fillStyle = color;
-      context.fillRect(x, labelY, labelWidth, labelHeight);
-      context.fillStyle = resolvePaint('var(--on-accent)');
-      context.fillText(label, x + 6, labelY + 14);
+        context.fillStyle = color;
+        context.fillRect(x, labelY, labelWidth, labelHeight);
+        context.fillStyle = resolvePaint('var(--on-accent)');
+        context.fillText(label, x + 6, labelY + 14);
+      }
       context.restore();
     });
-  }, [detections, syncCanvasSize]);
+  }, [detections, syncCanvasSize, plainMode]);
 
   // Attach the source (file/HLS URL or WebRTC MediaStream).
   useEffect(() => {
@@ -289,12 +294,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {(!hasLoaded || mediaError) && (
         <div className={styles.fallback}>
           <VideoOff size={22} />
-          <span>{mediaError ? 'Camera feed unavailable' : 'Connecting to camera feed…'}</span>
-          <small>Mock source • detection canvas ready</small>
+          <span>{mediaError ? 'Camera feed unavailable' : 'Connecting to camera…'}</span>
+          {!plainMode && <small>Mock source • detection canvas ready</small>}
         </div>
       )}
 
-      {detections.length > 0 && (
+      {!plainMode && detections.length > 0 && (
         <span className={styles.detectionCount}>
           {detections.length} overlay{detections.length === 1 ? '' : 's'}
         </span>

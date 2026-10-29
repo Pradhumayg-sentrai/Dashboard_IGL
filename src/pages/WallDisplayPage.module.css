@@ -4,30 +4,147 @@
   gap: var(--space-3);
 }
 
-.bottomRow {
+.statusBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left-width: 5px;
+}
+
+.statusOk {
+  border-left-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.statusAlert {
+  border-left-color: var(--critical);
+  background: var(--critical-bg);
+}
+
+.statusIcon {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.statusOk .statusIcon {
+  color: var(--ok-text);
+  border-color: var(--ok-border);
+}
+
+.statusAlert .statusIcon {
+  color: var(--critical-text);
+  border-color: var(--critical-border);
+}
+
+.statusText {
+  min-width: 0;
+}
+
+.statusTitle {
+  font-size: 1.375rem;
+  color: var(--text);
+}
+
+.statusSub {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.helpLink {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 42px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--accent-text);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.helpLink:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.mainGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--space-3);
   align-items: stretch;
 }
 
-/* 1920x1080 Control Room Wall Display Mode */
-@media (min-width: 1800px) {
+/*
+ * Desktop: keep the overview on one screen. The page shell, status banner and
+ * KPIs stay fixed; only the bay list and the help list scroll.
+ */
+@media (min-width: 1025px) {
   .wallContainer {
-    gap: var(--space-2);
+    height: calc(100vh - 189px);
+    min-height: 420px;
+    overflow: hidden;
+  }
+
+  .statusBanner,
+  .wallContainer > :global(.kpi-grid) {
+    flex: none;
+  }
+
+  .mainGrid {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mainGrid > section {
+    height: 100%;
+    min-height: 0;
   }
 }
 
-/* Mid-size screens: keep the pulse charts readable above the alarm list */
-@media (max-width: 1279px) {
-  .bottomRow {
+@media (min-width: 1800px) {
+  .wallContainer {
+    height: calc(100vh - 181px);
+    gap: var(--space-2);
+  }
+
+  .mainGrid {
+    grid-template-columns: minmax(0, 1fr) 410px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mainGrid {
     grid-template-columns: 1fr;
   }
 }
 
-/* 768px Handhelds */
 @media (max-width: 768px) {
   .wallContainer {
     padding-bottom: 70px;
+  }
+
+  .statusBanner {
+    flex-wrap: wrap;
+  }
+
+  .helpLink {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
   }
 }

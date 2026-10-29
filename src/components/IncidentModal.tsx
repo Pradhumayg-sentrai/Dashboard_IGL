@@ -12,11 +12,21 @@ import {
   Keyboard,
   XCircle,
   AlertOctagon,
+  AlertTriangle,
   StickyNote,
   Loader2,
 } from 'lucide-react';
 import { VideoPlayer } from './VideoPlayer';
 import { StatusBadge } from './StatusBadge';
+import { CallSupervisorButton } from './CallSupervisorButton';
+import { useBays } from '../store/dashboardStore';
+import {
+  formatClockTime,
+  formatIncidentTime,
+  plainIncidentAdvice,
+  plainIncidentType,
+  plainSeverity,
+} from '../utils/plainLanguage';
 import styles from './IncidentModal.module.css';
 
 const MOCK_INCIDENT_VIDEO_SRC = `${import.meta.env.BASE_URL}mock-cctv.mp4`;
@@ -69,6 +79,7 @@ interface IncidentModalProps {
   onNavigate?: (incident: IncidentItem) => void;
   onReview: (id: number, notes?: string) => Promise<void> | void;
   onDismiss: (id: number, reason: string, notes?: string) => Promise<void> | void;
+  operatorMode?: boolean;
 }
 
 export const IncidentModal: React.FC<IncidentModalProps> = ({
@@ -78,7 +89,9 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
   onNavigate,
   onReview,
   onDismiss,
+  operatorMode = false,
 }) => {
+  const bays = useBays();
   const [notes, setNotes] = useState('');
   const [showDismiss, setShowDismiss] = useState(false);
   const [dismissReason, setDismissReason] = useState('');
@@ -88,7 +101,11 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
   const reasonRef = useRef<HTMLTextAreaElement | null>(null);
 
   const orderedIncidents = useMemo(() => {
-    const list = [...incidents].sort((a, b) => {
+    const source = operatorMode
+      ? incidents.filter(item => item.status === 'open')
+      : incidents;
+
+    const list = [...source].sort((a, b) => {
       const byTime = b.occurred_at.localeCompare(a.occurred_at);
       return byTime !== 0 ? byTime : b.id - a.id;
     });
@@ -98,7 +115,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
     }
 
     return list;
-  }, [incidents, incident]);
+  }, [incidents, incident, operatorMode]);
 
   const currentIndex = incident
     ? orderedIncidents.findIndex(item => item.id === incident.id)
@@ -253,6 +270,15 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
 
   if (!incident) return null;
 
+  const operatorBay = bays.find(bay => bay.bayId === incident.bay_id);
+  const severityBadgeKind =
+    incident.severity === 'critical' || incident.severity === 'high'
+      ? 'critical'
+      : incident.severity === 'medium'
+        ? 'warning'
+        : 'low';
+  const urgent = incident.severity === 'critical' || incident.severity === 'high';
+
   const positionLabel = currentIndex >= 0
     ? `${currentIndex + 1} / ${orderedIncidents.length}`
     : `#${incident.id}`;
@@ -271,12 +297,24 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
               <ShieldAlert size={18} />
             </div>
             <div>
-              <h3 id="incident-modal-title" className={styles.headerTitle}>
-                Incident #{incident.id}: {formatIncidentType(incident.type)}
+              <h3
+                id="incident-modal-title"
+                className={`${styles.headerTitle} ${operatorMode ? styles.operatorTitle : ''}`}
+              >
+                {operatorMode
+                  ? `${incident.bay_name ?? 'Loading bay'}: ${plainIncidentType(incident.type)}`
+                  : `Incident #${incident.id}: ${formatIncidentType(incident.type)}`}
               </h3>
-              <span className={styles.headerSubtitle}>
-                Occurred: {incident.occurred_at} • {incident.bay_name ?? 'Bay 1'} • Vehicle{' '}
-                {incident.truck_reg || 'Unassigned'} • CPPLUS-01 (Inward Truck CCTV)
+              <span
+                className={`${styles.headerSubtitle} ${operatorMode ? styles.operatorSubtitle : ''}`}
+              >
+                {operatorMode
+                  ? `${formatIncidentTime(incident.occurred_at)}${
+                      incident.truck_reg ? ` • Truck ${incident.truck_reg}` : ''
+                    }`
+                  : `Occurred: ${incident.occurred_at} • ${incident.bay_name ?? 'Bay 1'} • Vehicle ${
+                      incident.truck_reg || 'Unassigned'
+                    } • CPPLUS-01 (Inward Truck CCTV)`}
               </span>
             </div>
           </div>
@@ -288,8 +326,8 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
                 onClick={() => goToOffset(-1)}
                 disabled={!canNavigatePrevious}
                 className={styles.navBtn}
-                title="Previous incident (K)"
-                aria-label="Previous incident (K)"
+                title={operatorMode ? 'Previous alert' : 'Previous incident (K)'}
+                aria-label={operatorMode ? 'Previous alert' : 'Previous incident (K)'}
               >
                 <ChevronLeft size={16} />
               </button>
@@ -299,8 +337,8 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
                 onClick={() => goToOffset(1)}
                 disabled={!canNavigateNext}
                 className={styles.navBtn}
-                title="Next incident (J)"
-                aria-label="Next incident (J)"
+                title={operatorMode ? 'Next alert' : 'Next incident (J)'}
+                aria-label={operatorMode ? 'Next alert' : 'Next incident (J)'}
               >
                 <ChevronRight size={16} />
               </button>
@@ -323,193 +361,239 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
               src={MOCK_INCIDENT_VIDEO_SRC}
               detections={detections}
               className={styles.videoPlayer}
-              ariaLabel={`Camera evidence for incident ${incident.id}`}
+              plainMode={operatorMode}
+              ariaLabel={
+                operatorMode
+                  ? `Camera picture for ${incident.bay_name ?? 'loading bay'}`
+                  : `Camera evidence for incident ${incident.id}`
+              }
             />
 
-            <div className={styles.watermarkTop}>
-              REC • BAY {incident.bay_id ?? 1} CAM_IN (DA51PL3C-L-Y) • 25 FPS • MOCK FEED
-            </div>
-            <div className={styles.watermarkBottom}>{incident.occurred_at} UTC</div>
-          </div>
-
-          <div className={styles.telemetryGrid}>
-            <div className={styles.telemetryCard}>
-              <div className={styles.telemetryLabel}>
-                <Activity size={12} color="var(--critical)" />
-                Detection Severity
-              </div>
-              <div className={styles.severityVal}>
-                <StatusBadge
-                  kind={
-                    incident.severity === 'critical' || incident.severity === 'high'
-                      ? 'critical'
-                      : incident.severity === 'medium'
-                        ? 'warning'
-                        : 'low'
-                  }
-                >
-                  {incident.severity}
-                </StatusBadge>
-              </div>
-            </div>
-
-            <div className={styles.telemetryCard}>
-              <div className={styles.telemetryLabel}>
-                <Barcode size={12} color="var(--accent)" />
-                Associated Barcode
-              </div>
-              <div className={`font-mono ${styles.barcodeVal}`}>
-                {incident.barcode_value || 'No Scanned Barcode'}
-              </div>
-            </div>
-
-            <div className={styles.telemetryCard}>
-              <div className={styles.telemetryLabel}>
-                <Cpu size={12} color="var(--ok)" />
-                Lane / Vehicle
-              </div>
-              <div className={`font-mono ${styles.processIdVal}`}>
-                {incident.bay_name ?? 'Bay 1'} • {incident.truck_reg || 'N/A'}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.evidenceBox}>
-            <span className={styles.evidenceLabel}>Physical Evidence & Signature</span>
-            <p className={styles.evidenceText}>{incident.details}</p>
-            {incident.dismissal_reason && (
-              <p className={styles.dismissedReason}>
-                Dismissed: {incident.dismissal_reason}
-              </p>
-            )}
-          </div>
-
-          <div className={styles.notesBox}>
-            <label htmlFor="incident-review-notes" className={styles.notesLabel}>
-              <StickyNote size={13} />
-              Investigation notes
-            </label>
-            <textarea
-              id="incident-review-notes"
-              className={styles.notesInput}
-              rows={3}
-              value={notes}
-              onChange={event => setNotes(event.target.value)}
-              placeholder="Add context, witness details, or follow-up actions…"
-              disabled={isSubmitting}
-            />
-            <span className={styles.notesHint}>
-              Notes are attached to the audit entry when you review or dismiss this incident.
-            </span>
-          </div>
-
-          {showDismiss && incident.status === 'open' && (
-            <div className={styles.dismissPanel} role="alertdialog" aria-labelledby="dismiss-title">
-              <div className={styles.dismissHeader}>
-                <AlertOctagon size={15} />
-                <strong id="dismiss-title">Dismiss incident #{incident.id}</strong>
-              </div>
-              <p className={styles.dismissHelp}>
-                A reason is required. The dismissal, your identity, and the timestamp are written
-                to the audit log.
-              </p>
-              <textarea
-                ref={reasonRef}
-                className={styles.dismissReasonInput}
-                rows={2}
-                value={dismissReason}
-                onChange={event => setDismissReason(event.target.value)}
-                placeholder="Required: why is this incident being dismissed?"
-                disabled={isSubmitting}
-                aria-required="true"
-              />
-              <div className={styles.dismissActions}>
-                <button
-                  type="button"
-                  className="btn-action btn-ghost"
-                  onClick={() => {
-                    setShowDismiss(false);
-                    setDismissReason('');
-                    setError(null);
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-danger ${styles.confirmDismissBtn}`}
-                  onClick={() => void handleDismiss()}
-                  disabled={!dismissReason.trim() || isSubmitting}
-                >
-                  {isSubmitting ? <Loader2 size={14} className={styles.spinner} /> : <XCircle size={14} />}
-                  {isSubmitting ? 'Saving…' : 'Confirm dismissal'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <div className={styles.errorMessage} role="alert">
-              <AlertOctagon size={14} />
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className={styles.successMessage} role="status">
-              <CheckCircle2 size={14} />
-              {success}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.modalFooter}>
-          <div className={styles.footerMeta}>
-            <span className={styles.statusLabel}>
-              Status:{' '}
-              <StatusBadge kind={incident.status}>
-                {incident.status}
-              </StatusBadge>
-            </span>
-            <span className={styles.shortcutHint}>
-              <Keyboard size={12} />
-              J/K navigate • R review • D dismiss • Esc close
-            </span>
-          </div>
-
-          <div className={styles.actionsRow}>
-            <button type="button" onClick={onClose} className="btn-action btn-ghost">
-              Close
-            </button>
-
-            {incident.status === 'open' && (
+            {operatorMode ? (
               <>
-                <button
-                  type="button"
-                  onClick={openDismissPanel}
-                  className={`btn-action btn-ghost ${styles.dismissBtn}`}
-                  disabled={isSubmitting}
-                >
-                  <XCircle size={14} />
-                  Dismiss
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleReview()}
-                  className={`btn btn-primary ${styles.acknowledgeBtn}`}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader2 size={14} className={styles.spinner} />
-                  ) : (
-                    <CheckCircle2 size={14} />
-                  )}
-                  {isSubmitting ? 'Saving…' : 'Mark Reviewed'}
-                </button>
+                <div className={styles.watermarkTop}>
+                  Camera at {incident.bay_name ?? 'loading bay'}
+                </div>
+                <div className={styles.watermarkBottom}>
+                  {formatClockTime(incident.occurred_at)}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.watermarkTop}>
+                  REC • BAY {incident.bay_id ?? 1} CAM_IN (DA51PL3C-L-Y) • 25 FPS • MOCK FEED
+                </div>
+                <div className={styles.watermarkBottom}>{incident.occurred_at} UTC</div>
               </>
             )}
           </div>
+
+          {operatorMode ? (
+            <div
+              className={`${styles.operatorAlert} ${urgent ? styles.operatorAlertUrgent : ''}`}
+              role="status"
+            >
+              <AlertTriangle size={24} aria-hidden="true" />
+              <div>
+                <div className={styles.operatorAlertTop}>
+                  <StatusBadge kind={severityBadgeKind}>
+                    {plainSeverity(incident.severity)}
+                  </StatusBadge>
+                  <strong>{plainIncidentType(incident.type)}</strong>
+                </div>
+                <p>{plainIncidentAdvice(incident.type)}</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className={styles.telemetryGrid}>
+                <div className={styles.telemetryCard}>
+                  <div className={styles.telemetryLabel}>
+                    <Activity size={12} color="var(--critical)" />
+                    Detection Severity
+                  </div>
+                  <div className={styles.severityVal}>
+                    <StatusBadge kind={severityBadgeKind}>
+                      {incident.severity}
+                    </StatusBadge>
+                  </div>
+                </div>
+
+                <div className={styles.telemetryCard}>
+                  <div className={styles.telemetryLabel}>
+                    <Barcode size={12} color="var(--accent)" />
+                    Associated Barcode
+                  </div>
+                  <div className={`font-mono ${styles.barcodeVal}`}>
+                    {incident.barcode_value || 'No Scanned Barcode'}
+                  </div>
+                </div>
+
+                <div className={styles.telemetryCard}>
+                  <div className={styles.telemetryLabel}>
+                    <Cpu size={12} color="var(--ok)" />
+                    Lane / Vehicle
+                  </div>
+                  <div className={`font-mono ${styles.processIdVal}`}>
+                    {incident.bay_name ?? 'Bay 1'} • {incident.truck_reg || 'N/A'}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.evidenceBox}>
+                <span className={styles.evidenceLabel}>Physical Evidence & Signature</span>
+                <p className={styles.evidenceText}>{incident.details}</p>
+                {incident.dismissal_reason && (
+                  <p className={styles.dismissedReason}>
+                    Dismissed: {incident.dismissal_reason}
+                  </p>
+                )}
+              </div>
+
+              <div className={styles.notesBox}>
+                <label htmlFor="incident-review-notes" className={styles.notesLabel}>
+                  <StickyNote size={13} />
+                  Investigation notes
+                </label>
+                <textarea
+                  id="incident-review-notes"
+                  className={styles.notesInput}
+                  rows={3}
+                  value={notes}
+                  onChange={event => setNotes(event.target.value)}
+                  placeholder="Add context, witness details, or follow-up actions…"
+                  disabled={isSubmitting}
+                />
+                <span className={styles.notesHint}>
+                  Notes are attached to the audit entry when you review or dismiss this incident.
+                </span>
+              </div>
+
+              {showDismiss && incident.status === 'open' && (
+                <div className={styles.dismissPanel} role="alertdialog" aria-labelledby="dismiss-title">
+                  <div className={styles.dismissHeader}>
+                    <AlertOctagon size={15} />
+                    <strong id="dismiss-title">Dismiss incident #{incident.id}</strong>
+                  </div>
+                  <p className={styles.dismissHelp}>
+                    A reason is required. The dismissal, your identity, and the timestamp are written
+                    to the audit log.
+                  </p>
+                  <textarea
+                    ref={reasonRef}
+                    className={styles.dismissReasonInput}
+                    rows={2}
+                    value={dismissReason}
+                    onChange={event => setDismissReason(event.target.value)}
+                    placeholder="Required: why is this incident being dismissed?"
+                    disabled={isSubmitting}
+                    aria-required="true"
+                  />
+                  <div className={styles.dismissActions}>
+                    <button
+                      type="button"
+                      className="btn-action btn-ghost"
+                      onClick={() => {
+                        setShowDismiss(false);
+                        setDismissReason('');
+                        setError(null);
+                      }}
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-danger ${styles.confirmDismissBtn}`}
+                      onClick={() => void handleDismiss()}
+                      disabled={!dismissReason.trim() || isSubmitting}
+                    >
+                      {isSubmitting ? <Loader2 size={14} className={styles.spinner} /> : <XCircle size={14} />}
+                      {isSubmitting ? 'Saving…' : 'Confirm dismissal'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className={styles.errorMessage} role="alert">
+                  <AlertOctagon size={14} />
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className={styles.successMessage} role="status">
+                  <CheckCircle2 size={14} />
+                  {success}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className={`${styles.modalFooter} ${operatorMode ? styles.operatorFooter : ''}`}>
+          {operatorMode ? (
+            <div className={styles.actionsRow}>
+              {operatorBay && (
+                <CallSupervisorButton
+                  bay={operatorBay}
+                  reason={plainIncidentType(incident.type)}
+                />
+              )}
+              <button type="button" onClick={onClose} className="btn-action btn-ghost">
+                Close
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className={styles.footerMeta}>
+                <span className={styles.statusLabel}>
+                  Status:{' '}
+                  <StatusBadge kind={incident.status}>
+                    {incident.status}
+                  </StatusBadge>
+                </span>
+                <span className={styles.shortcutHint}>
+                  <Keyboard size={12} />
+                  J/K navigate • R review • D dismiss • Esc close
+                </span>
+              </div>
+
+              <div className={styles.actionsRow}>
+                <button type="button" onClick={onClose} className="btn-action btn-ghost">
+                  Close
+                </button>
+
+                {incident.status === 'open' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={openDismissPanel}
+                      className={`btn-action btn-ghost ${styles.dismissBtn}`}
+                      disabled={isSubmitting}
+                    >
+                      <XCircle size={14} />
+                      Dismiss
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleReview()}
+                      className={`btn btn-primary ${styles.acknowledgeBtn}`}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <Loader2 size={14} className={styles.spinner} />
+                      ) : (
+                        <CheckCircle2 size={14} />
+                      )}
+                      {isSubmitting ? 'Saving…' : 'Mark Reviewed'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

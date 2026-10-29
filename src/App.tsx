@@ -5,6 +5,7 @@ import { WallDisplayPage } from './pages/WallDisplayPage';
 import { BayCockpitPage } from './pages/BayCockpitPage';
 import { PlantManagerPage } from './pages/PlantManagerPage';
 import { ExciseCompliancePage } from './pages/ExciseCompliancePage';
+import { HelpPage } from './pages/HelpPage';
 
 export const App: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ export const App: React.FC = () => {
           <Route path="/bay/:id" element={<BayCockpitPage />} />
           <Route path="/plant" element={<PlantManagerPage />} />
           <Route path="/excise" element={<ExciseCompliancePage />} />
+          <Route path="/help" element={<HelpPage />} />
           <Route path="*" element={<Navigate to="/wall" replace />} />
         </Route>
       </Routes>

@@ -7,11 +7,10 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-2);
-  margin-bottom: var(--space-1);
 }
 
 .cardLabel {
-  font-size: 0.8125rem;
+  font-size: 1rem;
   color: var(--text-muted);
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -25,28 +24,23 @@
 }
 
 .metricValue {
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   font-weight: 700;
   color: var(--text);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 .metricSub {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-}
-
-.metricSubMins {
-  font-size: 0.8125rem;
+  font-size: 1rem;
   color: var(--text-muted);
 }
 
 .iconBox {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -69,14 +63,16 @@
   color: var(--warn-text);
 }
 
-.iconBoxViolet {
-  background: var(--accent-bg);
-  color: var(--accent-text);
+.cardHint {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.45;
 }
 
 .progressTrack {
   width: 100%;
-  height: 4px;
+  height: 7px;
   background: var(--surface-alt);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -94,18 +90,18 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-2);
-  margin-top: var(--space-1);
-  font-size: 0.75rem;
+  margin-top: var(--space-2);
+  font-size: 1rem;
   color: var(--text-muted);
 }
 
 .attainmentAchieved {
   color: var(--accent-text);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cardFooterText {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: var(--text-muted);
 }
 
@@ -114,7 +110,8 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
-  font-size: 0.8125rem;
+  font-size: 1rem;
+  flex-wrap: wrap;
 }
 
 .tatFaster {
@@ -122,7 +119,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .tatSlower {
@@ -130,59 +127,25 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.cardFooterBetween {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  font-size: 0.75rem;
-}
-
-.refusalAlert {
-  color: var(--critical-text);
-}
-
-.refusalNormal {
-  color: var(--ok-text);
-}
-
-.slaBadge {
-  font-size: 0.6875rem;
-}
-
-/* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .kpiCard {
     padding: var(--space-4);
   }
 
   .metricValue {
-    font-size: 1.75rem;
+    font-size: 2.125rem;
   }
 
   .cardLabel {
-    font-size: 0.875rem;
+    font-size: 1.0625rem;
   }
 }
 
-/* 1024px Tablets */
-@media (max-width: 1024px) {
-  .kpiCard {
-    padding: var(--space-3);
-  }
-}
-
-/* 768px Handhelds */
 @media (max-width: 768px) {
-  .kpiCard {
-    padding: var(--space-3);
-  }
-
   .metricValue {
-    font-size: 1.5rem;
+    font-size: 1.625rem;
   }
 }

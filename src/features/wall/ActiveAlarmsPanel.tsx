@@ -1,139 +1,132 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertTriangle,
   AlertOctagon,
+  AlertTriangle,
   CheckCircle2,
-  PlayCircle,
-  ExternalLink,
   Eye,
+  ExternalLink,
 } from 'lucide-react';
-import {
-  useBays,
-  useToggleBayBelt,
-  useIncidents,
-  useSetInspectedIncident,
-} from '../../store/dashboardStore';
+import { useBays, useIncidents, useSetInspectedIncident } from '../../store/dashboardStore';
 import { StatusBadge } from '../../components/StatusBadge';
+import { CallSupervisorButton } from '../../components/CallSupervisorButton';
+import {
+  formatIncidentTime,
+  plainIncidentType,
+  plainStopCause,
+} from '../../utils/plainLanguage';
 import styles from './ActiveAlarmsPanel.module.css';
 
 export const ActiveAlarmsPanel: React.FC = () => {
   const bays = useBays();
-  const toggleBayBelt = useToggleBayBelt();
   const incidents = useIncidents();
   const setInspectedIncident = useSetInspectedIncident();
   const navigate = useNavigate();
 
-  // Stopped or warning bays
-  const stoppedBays = bays.filter(
-    bay => bay.status === 'stopped' || bay.beltState === 'paused' || bay.beltState === 'stopped',
-  );
-  // High severity open incidents
+  const stoppedBays = bays.filter(bay => bay.status === 'stopped');
+
   const highIncidents = incidents.filter(
-    incident => (incident.severity === 'high' || incident.severity === 'critical')
-      && incident.status === 'open',
+    incident =>
+      (incident.severity === 'high' || incident.severity === 'critical') &&
+      incident.status === 'open',
   );
 
   const totalAlarmsCount = stoppedBays.length + highIncidents.length;
 
   return (
-    <div className={`card ${styles.panel}`}>
+    <section className={`card ${styles.panel}`} aria-labelledby="needs-help-title">
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          <AlertOctagon size={18} color="var(--critical)" />
-          <h3 className={styles.title}>Active Alarms</h3>
+          <AlertOctagon size={20} color="var(--critical)" aria-hidden="true" />
+          <h2 id="needs-help-title" className={styles.title}>
+            What needs help
+          </h2>
         </div>
 
         <StatusBadge kind={totalAlarmsCount > 0 ? 'critical' : 'ok'}>
-          {totalAlarmsCount} active
+          {totalAlarmsCount > 0
+            ? `${totalAlarmsCount} ${totalAlarmsCount === 1 ? 'needs' : 'need'} help`
+            : 'All okay'}
         </StatusBadge>
       </div>
 
       <div className={styles.alarmList} role="list">
-        {stoppedBays.map(bay => (
-          <div
-            key={`bay-stop-${bay.bayId}`}
-            className={styles.alarmRow}
-            role="listitem"
-            title={`${bay.bayName} (${bay.dockLocation}) — ${bay.stopCause || 'Lane stoppage trigger'}`}
-          >
-            <AlertOctagon size={14} className={styles.iconCritical} aria-hidden="true" />
+        {stoppedBays.map(bay => {
+          const reason = plainStopCause(bay.stopCause);
 
-            <span className={styles.alarmText}>
-              <strong>{bay.bayName}</strong>
-              {' · '}
-              {bay.dockLocation}
-              {' — '}
-              <span className={styles.causeCritical}>
-                {bay.stopCause || 'Lane stoppage trigger'}
-              </span>
-            </span>
+          return (
+            <div key={`bay-stop-${bay.bayId}`} className={styles.alarmRow} role="listitem">
+              <div className={styles.alarmMain}>
+                <AlertOctagon size={18} className={styles.iconCritical} aria-hidden="true" />
+                <div className={styles.alarmText}>
+                  <strong>{bay.bayName}</strong> is stopped. {reason}.
+                </div>
+              </div>
 
-            <span className={styles.alarmActions}>
-              <button
-                type="button"
-                onClick={() => toggleBayBelt(bay.bayId)}
-                className={`btn-action btn-ghost ${styles.rowBtn} ${styles.rowBtnResume}`}
-                title="Restart conveyor belt"
-                aria-label={`Restart ${bay.bayName} conveyor belt`}
-              >
-                <PlayCircle size={13} />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate(`/bay/${bay.bayId}`)}
-                className={`btn-action btn-ghost ${styles.rowBtn}`}
-                title="Open bay cockpit"
-                aria-label={`Inspect ${bay.bayName}`}
-              >
-                <ExternalLink size={13} />
-              </button>
-            </span>
-          </div>
-        ))}
+              <div className={styles.alarmActions}>
+                <CallSupervisorButton
+                  bay={bay}
+                  reason={reason}
+                  className={styles.callBtn}
+                />
+                <button
+                  type="button"
+                  className={`btn-action btn-ghost ${styles.rowBtn}`}
+                  onClick={() => navigate(`/bay/${bay.bayId}`)}
+                >
+                  <ExternalLink size={16} aria-hidden="true" />
+                  Show bay
+                </button>
+              </div>
+            </div>
+          );
+        })}
 
-        {highIncidents.map(incident => (
-          <div
-            key={`inc-${incident.id}`}
-            className={styles.alarmRow}
-            role="listitem"
-            title={`AI camera alert #${incident.id} — ${incident.details}`}
-          >
-            <AlertTriangle size={14} className={styles.iconWarn} aria-hidden="true" />
+        {highIncidents.map(incident => {
+          const bay = bays.find(item => item.bayId === incident.bay_id);
+          const reason = plainIncidentType(incident.type);
 
-            <span className={styles.alarmText}>
-              <strong>{incident.bay_name ?? 'Plant'}</strong>
-              {' · AI #'}
-              {incident.id}
-              {' — '}
-              <span className={styles.causeWarn}>
-                {incident.type.replace('_', ' ').toUpperCase()}
-              </span>
-            </span>
+          return (
+            <div key={`inc-${incident.id}`} className={styles.alarmRow} role="listitem">
+              <div className={styles.alarmMain}>
+                <AlertTriangle size={18} className={styles.iconWarn} aria-hidden="true" />
+                <div className={styles.alarmText}>
+                  <strong>{incident.bay_name ?? 'Loading bay'}</strong>: {reason}.
+                  <span className={styles.alarmTime}>{formatIncidentTime(incident.occurred_at)}</span>
+                </div>
+              </div>
 
-            <span className={styles.alarmActions}>
-              <button
-                type="button"
-                onClick={() => setInspectedIncident(incident)}
-                className={`btn-action btn-ghost ${styles.rowBtn}`}
-                title="Inspect CCTV video frame"
-                aria-label={`Inspect incident #${incident.id}`}
-              >
-                <Eye size={13} />
-              </button>
-            </span>
-          </div>
-        ))}
+              <div className={styles.alarmActions}>
+                {bay && (
+                  <CallSupervisorButton
+                    bay={bay}
+                    reason={reason}
+                    className={styles.callBtn}
+                  />
+                )}
+                <button
+                  type="button"
+                  className={`btn-action btn-ghost ${styles.rowBtn}`}
+                  onClick={() => setInspectedIncident(incident)}
+                >
+                  <Eye size={16} aria-hidden="true" />
+                  Show camera
+                </button>
+              </div>
+            </div>
+          );
+        })}
 
         {totalAlarmsCount === 0 && (
-          <div className={styles.noAlarmsRow} role="listitem">
-            <CheckCircle2 size={14} aria-hidden="true" />
-            <span>
-              All {bays.length} loading docks operating within normal conveyor speed and zero CCTV telemetry alarms.
-            </span>
+          <div className={styles.empty} role="listitem">
+            <CheckCircle2 size={28} aria-hidden="true" />
+            <div>
+              <strong>All bays are running normally.</strong>
+              <p>No action is needed right now.</p>
+            </div>
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };

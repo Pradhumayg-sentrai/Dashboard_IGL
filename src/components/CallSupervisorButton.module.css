@@ -1,0 +1,159 @@
+.button {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: 700;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--overlay);
+}
+
+.modal {
+  position: relative;
+  width: min(100%, 460px);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-raised);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.closeBtn {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.closeBtn:hover {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.phoneIcon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto var(--space-3);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-text);
+}
+
+.title {
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.bayName {
+  margin-top: var(--space-1);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
+.reason {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.contactItem {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.contactLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.contactValue {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.actions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.actionBtn {
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.confirmation {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  color: var(--ok-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.note {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .contact {
+    grid-template-columns: 1fr;
+  }
+}

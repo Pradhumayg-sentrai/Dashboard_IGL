@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../navigation/Navbar';
 import { BottomNav } from '../navigation/BottomNav';
 import { IncidentModal } from '../../components/IncidentModal';
@@ -16,9 +16,12 @@ export const AppLayout: React.FC = () => {
   // Global simulation ticker running in background
   useSimulationTicker();
 
+  const location = useLocation();
   const incidents = useIncidents();
   const inspectedIncident = useInspectedIncident();
   const setInspectedIncident = useSetInspectedIncident();
+  const isOperatorView =
+    location.pathname === '/wall' || location.pathname.startsWith('/bay/');
 
   return (
     <div className={styles.layoutContainer}>
@@ -34,6 +37,7 @@ export const AppLayout: React.FC = () => {
       <IncidentModal 
         incident={inspectedIncident}
         incidents={incidents}
+        operatorMode={isOperatorView}
         onClose={() => setInspectedIncident(null)}
         onNavigate={setInspectedIncident}
         onReview={async (id, notes) => {
@@ -46,10 +50,8 @@ export const AppLayout: React.FC = () => {
 
       {/* 4. Global Footer */}
       <footer className={styles.footer}>
-        <p>India Glycols Limited • Automated Truck Dispatch & Surveillance</p>
-        <p className={styles.footerMeta}>
-          SQLite WAL <span className="font-mono">app.db</span> • Redis 6379 • Android ADB 5037
-        </p>
+        <p>India Glycols Limited • Loading Bay Dashboard</p>
+        <p className={styles.footerMeta}>Need help? Call your supervisor.</p>
       </footer>
 
       {/* 5. Mobile-friendly Bottom Navigation (< 768px) */}

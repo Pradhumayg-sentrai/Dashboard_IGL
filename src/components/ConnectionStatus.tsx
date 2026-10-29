@@ -42,26 +42,29 @@ export const ConnectionStatus: React.FC = () => {
   };
 
   const formatAge = () => {
-    if (ageSeconds < 2) return '<1s ago';
-    if (ageSeconds < 60) return `${ageSeconds}s ago`;
+    if (ageSeconds < 5) return 'just now';
+    if (ageSeconds < 60) {
+      const seconds = Math.round(ageSeconds);
+      return `updated ${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
+    }
     const mins = Math.floor(ageSeconds / 60);
-    return `${mins}m ago`;
+    return `updated ${mins} ${mins === 1 ? 'minute' : 'minutes'} ago`;
   };
 
   return (
-    <div 
+    <div
       className={`${styles.statusPill} ${getStatusClass()}`}
-      title={`Connection: ${status.toUpperCase()} • Telemetry Age: ${ageSeconds}s`}
-      aria-label={`Connection status: ${status}, updated ${formatAge()}`}
+      title={`Connection: ${status === 'live' ? 'Connected' : status === 'reconnecting' ? 'Connecting' : 'Not connected'}, ${formatAge()}`}
+      aria-label={`Connection status: ${status === 'live' ? 'Connected' : status === 'reconnecting' ? 'Connecting' : 'Not connected'}, ${formatAge()}`}
     >
       {getStatusIcon()}
       <span className={styles.label}>
-        {status === 'live' && 'Live'}
-        {status === 'reconnecting' && 'Reconnecting'}
-        {status === 'offline' && 'Offline'}
+        {status === 'live' && 'Connected'}
+        {status === 'reconnecting' && 'Connecting'}
+        {status === 'offline' && 'Not connected'}
       </span>
       <span className={styles.age}>
-        ({formatAge()})
+        {formatAge()}
       </span>
     </div>
   );

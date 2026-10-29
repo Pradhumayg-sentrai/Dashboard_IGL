@@ -202,12 +202,12 @@ h4 {
   align-items: center;
   gap: var(--space-1);
   max-width: 100%;
-  padding: 2px var(--space-2);
+  padding: 3px var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.45;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
@@ -268,12 +268,12 @@ h4 {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  min-height: 30px;
+  min-height: 40px;
   padding: 0 var(--space-3);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
   text-decoration: none;

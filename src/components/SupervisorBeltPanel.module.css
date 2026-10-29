@@ -1,0 +1,117 @@
+.card {
+  padding: var(--space-3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--accent);
+}
+
+.title {
+  font-size: 1.0625rem;
+  color: var(--text);
+}
+
+.subtitle {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-2);
+}
+
+.bayRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-alt);
+}
+
+.bayInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.bayName {
+  color: var(--text);
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+.beltState {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.controlBtn {
+  min-height: 38px;
+  min-width: 112px;
+  font-size: 0.875rem;
+  flex: none;
+}
+
+.confirmBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.confirmText {
+  width: 100%;
+  text-align: right;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.confirmBtn {
+  min-height: 36px;
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 1024px) {
+  .bayRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .controlBtn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .confirmBar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .confirmText {
+    text-align: left;
+  }
+}

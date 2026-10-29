@@ -4,6 +4,46 @@
   gap: var(--space-3);
 }
 
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.pageSubtitle {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 42px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--accent-text);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.backLink:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
 .topBanner {
   padding: var(--space-3);
   display: flex;

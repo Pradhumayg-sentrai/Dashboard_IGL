@@ -1,9 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
   KeyRound, 
   Download, 
   FileCheck2, 
-  Radio 
+  Radio,
+  ArrowLeft
 } from 'lucide-react';
 import { useBays, useDashboardStore } from '../store/dashboardStore';
 import { sampleRemovals } from '../data/plantData';
@@ -23,7 +25,19 @@ export const ExciseCompliancePage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Paperwork &amp; audit</h1>
+          <p className={styles.pageSubtitle}>
+            Excise portal checks and carton removal records for supervisors and managers.
+          </p>
+        </div>
+        <Link to="/plant" className={styles.backLink}>
+          <ArrowLeft size={17} aria-hidden="true" />
+          Back to Reports
+        </Link>
+      </div>
+
       {/* 1. Official Excise Compliance Summary Banner */}
       <div className={`card ${styles.topBanner}`}>
         <div className={styles.bannerLeft}>
@@ -45,25 +59,25 @@ export const ExciseCompliancePage: React.FC = () => {
               State Excise Portal & Dispatch Ledger
             </h2>
             <p className={styles.bannerSub}>
-              UP State Excise • barcode validation & loss-prevention audit
+              UP State Excise • barcode checks and loss-prevention records
             </p>
           </div>
         </div>
 
         <div className={styles.bannerStats}>
           <StatusBadge kind="verified">
-            Zero penalty standing
+            No penalties
           </StatusBadge>
 
           <button 
             onClick={handleExport}
             className="btn-action btn-primary"
             style={{ fontSize: '0.82rem' }}
-            title="Download complete plant dispatch & excise compliance CSV"
-            aria-label="Export complete plant dispatch report CSV"
+            title="Download the plant dispatch and excise report"
+            aria-label="Download plant report"
           >
             <Download size={15} />
-            <span>Export Official CSV</span>
+            <span>Download report</span>
           </button>
         </div>
       </div>
@@ -80,15 +94,15 @@ export const ExciseCompliancePage: React.FC = () => {
             <div>
               <div className={styles.removalsTitle}>
                 <KeyRound size={18} color="var(--critical)" />
-                <span>Carton Removal Security Audit Ledger</span>
+                <span>Carton removal records</span>
               </div>
               <p className={styles.removalsSubtitle}>
-                Every manual deduction logged via supervisor biometric / PIN step-up tokens
+                Every manual carton removal is approved by a supervisor.
               </p>
             </div>
 
             <StatusBadge kind="info" icon={KeyRound}>
-              {sampleRemovals.length} authorized
+              {sampleRemovals.length} approved
             </StatusBadge>
           </div>
 
@@ -98,7 +112,7 @@ export const ExciseCompliancePage: React.FC = () => {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <StatusBadge kind="info" icon={KeyRound}>
-                      Authorized #{rem.id}
+                      Approved #{rem.id}
                     </StatusBadge>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       {rem.timestamp}
@@ -136,9 +150,9 @@ export const ExciseCompliancePage: React.FC = () => {
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Radio size={12} color="var(--ok)" />
-              SQLite WAL <span className="font-mono">app.db</span> (Table: removed_cartons)
+              Records are saved automatically
             </span>
-            <span>Tamper-evident SHA-256</span>
+            <span>Approved by supervisor</span>
           </div>
         </div>
 
