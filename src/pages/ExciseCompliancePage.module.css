@@ -78,6 +78,24 @@
   flex-wrap: wrap;
 }
 
+.bannerIconBox {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ok-text);
+  flex-shrink: 0;
+}
+
+.downloadBtn {
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+
 .complianceGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -109,7 +127,7 @@
 }
 
 .removalsSubtitle {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -117,8 +135,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  max-height: 380px;
+  max-height: 460px;
   overflow-y: auto;
+}
+
+.removalsEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  text-align: center;
 }
 
 .removalItem {
@@ -133,10 +163,63 @@
   gap: var(--space-2);
 }
 
+.removalTopRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.removalTimestamp {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.removalReason {
+  font-size: 0.875rem;
+  color: var(--text);
+  margin-top: 4px;
+}
+
 .removalMeta {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--accent-text);
   margin-top: var(--space-1);
+}
+
+.removalRight {
+  text-align: right;
+}
+
+.removalAuthorizer {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.removalAuthorizer strong {
+  color: var(--text);
+}
+
+.removalEmployee {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.removalsFooter {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.autoSaveLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 /* 1920px+ Wall Displays */

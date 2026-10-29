@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  gateDiversionReasons,
   gateDiversionCases,
   type DiversionResolution,
+  type GateDiversionCase,
 } from '../data/plantData';
 import { 
   ShieldCheck, 
@@ -22,27 +22,110 @@ interface ExciseIntelligenceProps {
   isLoading?: boolean;
   isError?: boolean;
   errorMessage?: string;
+  filteredCases?: Record<string, GateDiversionCase[]>;
+  timeframeLabel?: string;
 }
 
+const REASON_METADATA: Record<string, { plainName: string; color: string }> = {
+  qty_reached: {
+    plainName: 'Truck limit reached (Quota full)',
+    color: 'var(--chart-2)',
+  },
+  refused: {
+    plainName: 'Transport pass not valid',
+    color: 'var(--chart-3)',
+  },
+  duplicate: {
+    plainName: 'Barcode used on another truck',
+    color: 'var(--chart-4)',
+  },
+  not_case_code: {
+    plainName: 'Barcode unreadable or damaged',
+    color: 'var(--chart-1)',
+  },
+  supervisor: {
+    plainName: 'Supervisor manual override',
+    color: 'var(--chart-5)',
+  },
+};
+
 const RESOLUTION_BADGE: Record<DiversionResolution, { kind: StatusKind; label: string }> = {
-  returned: { kind: 'info', label: 'Returned to belt' },
-  held: { kind: 'warning', label: 'Excise cell held' },
-  repack: { kind: 'critical', label: 'Defective repack' },
+  returned: { kind: 'info', label: 'Approved & loaded on truck' },
+  held: { kind: 'warning', label: 'Held for inspection' },
+  repack: { kind: 'critical', label: 'Sent back to repack' },
   override: { kind: 'low', label: 'Supervisor override' },
 };
 
 export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
   isLoading = false,
   isError = false,
-  errorMessage = 'Failed to fetch State Excise portal telemetry'
+  errorMessage = 'Failed to fetch State Excise portal telemetry',
+  filteredCases,
 }) => {
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const activeCases = filteredCases ?? gateDiversionCases;
+
+  const reasonsData = useMemo(() => {
+    const codes = ['qty_reached', 'refused', 'duplicate', 'not_case_code', 'supervisor'];
+    const totalCases = codes.reduce((sum, code) => sum + (activeCases[code]?.length ?? 0), 0);
+
+    return codes.map(code => {
+      const casesForCode = activeCases[code] ?? [];
+      const count = casesForCode.length;
+      const percentage = totalCases > 0 ? Math.round((count / totalCases) * 100) : 0;
+      const meta = REASON_METADATA[code] ?? { plainName: code, color: 'var(--accent)' };
+
+      return {
+        code,
+        reason: meta.plainName,
+        count,
+        percentage,
+        color: meta.color,
+      };
+    });
+  }, [activeCases]);
+
+  const totalDivertedCount = useMemo(() => {
+    return reasonsData.reduce((sum, r) => sum + r.count, 0);
+  }, [reasonsData]);
+
+  const chuteStats = useMemo(() => {
+    let returned = 0;
+    let held = 0;
+    let repack = 0;
+    let total = 0;
+
+    Object.values(activeCases).forEach(caseList => {
+      caseList.forEach(c => {
+        total++;
+        if (c.resolution === 'returned' || c.resolution === 'override') returned++;
+        else if (c.resolution === 'held') held++;
+        else if (c.resolution === 'repack') repack++;
+      });
+    });
+
+    if (total === 0) {
+      return { returnedPct: 0, heldPct: 0, repackPct: 0, total: 0 };
+    }
+
+    const retPct = Math.round((returned / total) * 100);
+    const hldPct = Math.round((held / total) * 100);
+    const repPct = total > 0 ? Math.round((repack / total) * 100) : 0;
+
+    return {
+      returnedPct: retPct,
+      heldPct: hldPct,
+      repackPct: repPct,
+      total,
+    };
+  }, [activeCases]);
+
   const selectedReason = selectedCode
-    ? gateDiversionReasons.find(item => item.code === selectedCode) ?? null
+    ? reasonsData.find(item => item.code === selectedCode) ?? null
     : null;
-  const selectedCases = selectedCode ? gateDiversionCases[selectedCode] ?? [] : [];
+  const selectedCases = selectedCode ? activeCases[selectedCode] ?? [] : [];
 
   useEffect(() => {
     if (!selectedCode) return;
@@ -74,16 +157,16 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
           <div className={styles.titleGroup}>
             <ShieldCheck size={20} color="var(--ok)" />
             <h3 className={styles.title}>
-              Excise Portal & Gate Diversion Intelligence
+              State portal checks &amp; diverted cartons
             </h3>
           </div>
           <p className={styles.subtitle}>
-            Real-time validation feedback from state Excise app via Android POS bridge
+            Live checks with the UP Excise portal before cartons load onto trucks.
           </p>
         </div>
 
         <StatusBadge kind="verified">
-          Zero penalty standing
+          100% Compliant • No penalties
         </StatusBadge>
       </div>
 
@@ -102,24 +185,24 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
         </div>
       )}
 
-      {!isLoading && !isError && gateDiversionReasons.length === 0 && (
+      {!isLoading && !isError && totalDivertedCount === 0 && (
         <div className={styles.stateBox}>
           <Inbox size={24} />
-          <span>Zero gate diversion events recorded (100% first-pass pass-through)</span>
+          <span>No gate diversions found matching your filter selection.</span>
         </div>
       )}
 
       {/* Diversion Reason Pareto List */}
-      {!isLoading && !isError && gateDiversionReasons.length > 0 && (
+      {!isLoading && !isError && totalDivertedCount > 0 && (
         <>
           <div>
             <div className={styles.paretoHeader}>
-              <span>DIVERSION REASON CAUSE</span>
-              <span>CASES / SHARE</span>
+              <span>Why cartons were stopped</span>
+              <span>Cartons / Share</span>
             </div>
 
             <div className={styles.paretoList}>
-              {gateDiversionReasons.map(item => (
+              {reasonsData.map(item => (
                 <button
                   key={item.code}
                   type="button"
@@ -132,7 +215,7 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
                     <span className={styles.reasonText}>{item.reason}</span>
                     <span className={styles.rowRight}>
                       <span className={`font-mono ${styles.countText}`} style={{ color: item.color }}>
-                        {item.count} cases ({item.percentage}%)
+                        {item.count} cartons ({item.percentage}%)
                       </span>
                       <ChevronRight size={14} className={styles.chevron} aria-hidden="true" />
                     </span>
@@ -154,7 +237,7 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
           {/* Chute Action Handling Distribution */}
           <div className={styles.chuteBox}>
             <div className={styles.chuteTitle}>
-              Chute Operator Resolution Actions
+              What happened to stopped cartons
             </div>
             
             <div className={styles.chuteGrid}>
@@ -162,24 +245,24 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
               <div className={styles.chuteAction}>
                 <RotateCcw size={16} color="var(--accent)" />
                 <div>
-                  <div className={`font-mono ${styles.actionPct}`}>64%</div>
-                  <div className={styles.actionDesc}>Returned to Belt</div>
+                  <div className={`font-mono ${styles.actionPct}`}>{chuteStats.returnedPct}%</div>
+                  <div className={styles.actionDesc}>Approved &amp; loaded on truck</div>
                 </div>
               </div>
 
               <div className={styles.chuteAction}>
                 <Archive size={16} color="var(--warn)" />
                 <div>
-                  <div className={`font-mono ${styles.actionPct}`}>28%</div>
-                  <div className={styles.actionDesc}>Excise Cell Held</div>
+                  <div className={`font-mono ${styles.actionPct}`}>{chuteStats.heldPct}%</div>
+                  <div className={styles.actionDesc}>Held for inspection</div>
                 </div>
               </div>
 
               <div className={styles.chuteAction}>
                 <AlertOctagon size={16} color="var(--critical)" />
                 <div>
-                  <div className={`font-mono ${styles.actionPct}`}>8%</div>
-                  <div className={styles.actionDesc}>Defective Repack</div>
+                  <div className={`font-mono ${styles.actionPct}`}>{chuteStats.repackPct}%</div>
+                  <div className={styles.actionDesc}>Sent back to repack</div>
                 </div>
               </div>
 
@@ -208,12 +291,12 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
                     {selectedReason.reason}
                   </h3>
                   <StatusBadge kind="info">
-                    {selectedReason.count} cases total
+                    {selectedReason.count} cartons
                   </StatusBadge>
                 </div>
                 <p className={styles.modalSubtitle}>
-                  {selectedReason.percentage}% of all gate diversions •{' '}
-                  {selectedCases.length} recent sample{' '}
+                  {selectedReason.percentage}% of diverted cartons in this view •{' '}
+                  {selectedCases.length} matching{' '}
                   {selectedCases.length === 1 ? 'record' : 'records'}
                 </p>
               </div>
@@ -234,7 +317,7 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
               {selectedCases.length === 0 ? (
                 <div className={styles.stateBox}>
                   <Inbox size={24} />
-                  <span>No recent case records for this diversion reason.</span>
+                  <span>No case records match your current filter.</span>
                 </div>
               ) : (
                 <div className={styles.tableScroll}>
@@ -277,8 +360,7 @@ export const ExciseIntelligence: React.FC<ExciseIntelligenceProps> = ({
               )}
 
               <p className={styles.sampleNote}>
-                Aggregate counts cover the selected period. This table is a recent sample of
-                events behind the {selectedReason.reason.toLowerCase()} total, not the full history.
+                Showing records matching the selected timeframe and search criteria.
               </p>
             </div>
           </div>
