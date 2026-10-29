@@ -24,7 +24,7 @@ const steps = [
   {
     icon: Phone,
     title: '3. Call your supervisor',
-    body: 'Press “Call supervisor.” Tell them the bay number and what is wrong. Do not touch the belt.',
+    body: 'Press “View Supervisor.” Tell them the bay number and what is wrong. Do not touch the belt.',
   },
 ];
 

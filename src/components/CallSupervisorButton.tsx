@@ -17,7 +17,7 @@ export const CallSupervisorButton: React.FC<CallSupervisorButtonProps> = ({
   bay,
   reason,
   className,
-  label = 'Call supervisor',
+  label = 'View Supervisor',
   variant = 'primary',
 }) => {
   const [open, setOpen] = useState(false);
@@ -94,7 +94,7 @@ export const CallSupervisorButton: React.FC<CallSupervisorButtonProps> = ({
               </div>
 
               <h2 id="call-supervisor-title" className={styles.title}>
-                Call supervisor
+                View Supervisor
               </h2>
               <p className={styles.bayName}>
                 {bay.bayName} · {bay.dockLocation}
