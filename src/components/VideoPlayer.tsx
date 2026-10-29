@@ -18,7 +18,7 @@ export type VideoPlayerSource = string | MediaStream;
 
 /**
  * Canvas paint styles do not accept CSS custom properties, so token references
- * from detection metadata are resolved against the current theme before use.
+ * from detection metadata are resolved against the active design tokens before use.
  */
 function resolvePaint(value: string): string {
   const token = /^var\((--[\w-]+)\)$/.exec(value.trim());

@@ -100,7 +100,7 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
             >
               {/* Bay Name & Status Badge */}
               <div className={styles.bayHeader}>
-                <div>
+                <div className={styles.bayHeaderLeft}>
                   <div className={styles.bayNameRow}>
                     <span className={styles.bayName}>
                       {bay.bayName}
@@ -110,7 +110,7 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
                     </span>
                   </div>
                   {bay.status === 'stopped' && (
-                    <div className={styles.baySub}>
+                    <div className={styles.baySub} title={bay.stopCause || undefined}>
                       <strong className={styles.stopCause}>{bay.stopCause}</strong>
                     </div>
                   )}
@@ -156,8 +156,11 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
 
                 <div className={styles.paceRight}>
                   <div className={styles.infoLabel}>Pace</div>
-                  <div className={`font-mono ${styles.paceValue} ${bay.paceCpm > 0 ? styles.paceActive : styles.paceInactive}`}>
-                    {bay.paceCpm > 0 ? `${bay.paceCpm} c/min` : '0 c/min'}
+                  <div
+                    className={`font-mono ${styles.paceValue} ${bay.paceCpm > 0 ? styles.paceActive : styles.paceInactive}`}
+                    title={`${Math.round(bay.paceCpm * 60).toLocaleString()} cartons per hour`}
+                  >
+                    {bay.paceCpm > 0 ? `${Math.round(bay.paceCpm * 60).toLocaleString()} c/hr` : '0 c/hr'}
                   </div>
                 </div>
               </div>

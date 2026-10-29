@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBays, useToggleBayBelt, useDashboardStore } from '../store/dashboardStore';
+import { getPlantPulseSamples } from '../data/plantData';
 import { KpiScorecard } from '../components/KpiScorecard';
 import { MultiBayFleetGrid } from '../components/MultiBayFleetGrid';
 import { ActiveAlarmsPanel } from '../features/wall/ActiveAlarmsPanel';
+import { PlantPulse } from '../features/wall/PlantPulse';
 import styles from './WallDisplayPage.module.css';
 
 export const WallDisplayPage: React.FC = () => {
@@ -13,10 +15,10 @@ export const WallDisplayPage: React.FC = () => {
   const navigate = useNavigate();
 
   const kpis = getKpis();
+  const chartData = useMemo(() => getPlantPulseSamples(), []);
 
   return (
     <div className={styles.wallContainer}>
-
       <KpiScorecard kpis={kpis} timeframe="realtime" />
 
       <MultiBayFleetGrid
@@ -32,9 +34,10 @@ export const WallDisplayPage: React.FC = () => {
         onToggleBayBelt={toggleBayBelt}
       />
 
-      <ActiveAlarmsPanel />
-
+      <div className={styles.bottomRow}>
+        <PlantPulse bays={bays} chartData={chartData} />
+        <ActiveAlarmsPanel />
+      </div>
     </div>
   );
 };
-

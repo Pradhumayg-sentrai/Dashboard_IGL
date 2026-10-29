@@ -103,7 +103,12 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-2);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.bayHeaderLeft {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .bayNameRow {
@@ -128,6 +133,10 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stopCause {
@@ -373,5 +382,9 @@
 
   .fleetMetrics {
     width: 100%;
+  }
+
+  .bayHeader {
+    flex-wrap: wrap;
   }
 }

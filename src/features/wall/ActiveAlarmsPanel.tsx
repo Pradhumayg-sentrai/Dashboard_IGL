@@ -1,13 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  AlertTriangle, 
-  AlertOctagon, 
-  CheckCircle2, 
-  PlayCircle, 
-  ExternalLink 
+import {
+  AlertTriangle,
+  AlertOctagon,
+  CheckCircle2,
+  PlayCircle,
+  ExternalLink,
+  Eye,
 } from 'lucide-react';
-import { useBays, useToggleBayBelt, useIncidents, useSetInspectedIncident } from '../../store/dashboardStore';
+import {
+  useBays,
+  useToggleBayBelt,
+  useIncidents,
+  useSetInspectedIncident,
+} from '../../store/dashboardStore';
 import { StatusBadge } from '../../components/StatusBadge';
 import styles from './ActiveAlarmsPanel.module.css';
 
@@ -19,10 +25,13 @@ export const ActiveAlarmsPanel: React.FC = () => {
   const navigate = useNavigate();
 
   // Stopped or warning bays
-  const stoppedBays = bays.filter(b => b.status === 'stopped' || b.beltState === 'paused' || b.beltState === 'stopped');
+  const stoppedBays = bays.filter(
+    bay => bay.status === 'stopped' || bay.beltState === 'paused' || bay.beltState === 'stopped',
+  );
   // High severity open incidents
   const highIncidents = incidents.filter(
-    i => (i.severity === 'high' || i.severity === 'critical') && i.status === 'open',
+    incident => (incident.severity === 'high' || incident.severity === 'critical')
+      && incident.status === 'open',
   );
 
   const totalAlarmsCount = stoppedBays.length + highIncidents.length;
@@ -31,88 +40,100 @@ export const ActiveAlarmsPanel: React.FC = () => {
     <div className={`card ${styles.panel}`}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          <AlertOctagon size={20} color="var(--critical)" />
-          <h3 className={styles.title}>
-            Live Plant Alarms & Automated Interventions
-          </h3>
+          <AlertOctagon size={18} color="var(--critical)" />
+          <h3 className={styles.title}>Active Alarms</h3>
         </div>
 
         <StatusBadge kind={totalAlarmsCount > 0 ? 'critical' : 'ok'}>
-          {totalAlarmsCount} active alarms
+          {totalAlarmsCount} active
         </StatusBadge>
       </div>
 
-      <div className={styles.alarmGrid}>
-        {/* Stopped Bay Alarms */}
+      <div className={styles.alarmList} role="list">
         {stoppedBays.map(bay => (
-          <div key={`bay-stop-${bay.bayId}`} className={styles.alarmCard} title={`${bay.bayName} (${bay.dockLocation}) - ${bay.stopCause || 'Lane stoppage trigger'}`}>
-            <div className={styles.alarmLeft}>
-              <AlertTriangle size={20} className={styles.alarmIconRose} />
-              <div>
-                <div className={styles.alarmBayName}>
-                  {bay.bayName} ({bay.dockLocation}) • Vehicle {bay.truckReg || 'N/A'}
-                </div>
-                <div className={styles.alarmCause}>
-                  Conveyor Halted: {bay.stopCause || 'Lane stoppage trigger'}
-                </div>
-              </div>
-            </div>
+          <div
+            key={`bay-stop-${bay.bayId}`}
+            className={styles.alarmRow}
+            role="listitem"
+            title={`${bay.bayName} (${bay.dockLocation}) — ${bay.stopCause || 'Lane stoppage trigger'}`}
+          >
+            <AlertOctagon size={14} className={styles.iconCritical} aria-hidden="true" />
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button 
+            <span className={styles.alarmText}>
+              <strong>{bay.bayName}</strong>
+              {' · '}
+              {bay.dockLocation}
+              {' — '}
+              <span className={styles.causeCritical}>
+                {bay.stopCause || 'Lane stoppage trigger'}
+              </span>
+            </span>
+
+            <span className={styles.alarmActions}>
+              <button
+                type="button"
                 onClick={() => toggleBayBelt(bay.bayId)}
-                className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionResume}`}
+                className={`btn-action btn-ghost ${styles.rowBtn} ${styles.rowBtnResume}`}
                 title="Restart conveyor belt"
                 aria-label={`Restart ${bay.bayName} conveyor belt`}
               >
-                <PlayCircle size={13} /> Resume
+                <PlayCircle size={13} />
               </button>
-              <button 
+              <button
+                type="button"
                 onClick={() => navigate(`/bay/${bay.bayId}`)}
-                className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionInfo}`}
-                title="Open single bay cockpit"
+                className={`btn-action btn-ghost ${styles.rowBtn}`}
+                title="Open bay cockpit"
                 aria-label={`Inspect ${bay.bayName}`}
               >
-                <ExternalLink size={13} /> Cockpit
+                <ExternalLink size={13} />
               </button>
-            </div>
+            </span>
           </div>
         ))}
 
-        {/* High Severity AI Incidents */}
-        {highIncidents.map(inc => (
-          <div key={`inc-${inc.id}`} className={`${styles.alarmCard} ${styles.alarmCardWarning}`} title={`${inc.type.replace('_', ' ')} - ${inc.details}`}>
-            <div className={styles.alarmLeft}>
-              <AlertTriangle size={20} className={styles.alarmIconAmber} />
-              <div>
-                <div className={styles.alarmBayName}>
-                  AI Camera Alert #{inc.id}: {inc.type.replace('_', ' ').toUpperCase()}
-                </div>
-                <div className={`${styles.alarmCause} ${styles.alarmCauseAmber}`}>
-                  {inc.details}
-                </div>
-              </div>
-            </div>
+        {highIncidents.map(incident => (
+          <div
+            key={`inc-${incident.id}`}
+            className={styles.alarmRow}
+            role="listitem"
+            title={`AI camera alert #${incident.id} — ${incident.details}`}
+          >
+            <AlertTriangle size={14} className={styles.iconWarn} aria-hidden="true" />
 
-            <button 
-              onClick={() => setInspectedIncident(inc)}
-              className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionInfo}`}
-              title="Inspect CCTV video frame"
-              aria-label={`Inspect Incident #${inc.id}`}
-            >
-              <ExternalLink size={13} /> View Frame
-            </button>
+            <span className={styles.alarmText}>
+              <strong>{incident.bay_name ?? 'Plant'}</strong>
+              {' · AI #'}
+              {incident.id}
+              {' — '}
+              <span className={styles.causeWarn}>
+                {incident.type.replace('_', ' ').toUpperCase()}
+              </span>
+            </span>
+
+            <span className={styles.alarmActions}>
+              <button
+                type="button"
+                onClick={() => setInspectedIncident(incident)}
+                className={`btn-action btn-ghost ${styles.rowBtn}`}
+                title="Inspect CCTV video frame"
+                aria-label={`Inspect incident #${incident.id}`}
+              >
+                <Eye size={13} />
+              </button>
+            </span>
           </div>
         ))}
 
         {totalAlarmsCount === 0 && (
-          <div className={styles.noAlarmsCard}>
-            <CheckCircle2 size={20} />
-            <span>All {bays.length} loading docks operating within normal conveyor speed and zero CCTV telemetry alarms.</span>
+          <div className={styles.noAlarmsRow} role="listitem">
+            <CheckCircle2 size={14} aria-hidden="true" />
+            <span>
+              All {bays.length} loading docks operating within normal conveyor speed and zero CCTV telemetry alarms.
+            </span>
           </div>
         )}
       </div>
     </div>
   );
 };
-

@@ -32,8 +32,6 @@ interface DashboardState {
   toggleSimulation: () => void;
 
   bays: LiveBayState[];
-  selectedBayId: number | 'all';
-  setSelectedBayId: (id: number | 'all') => void;
   toggleBayBelt: (bayId: number) => void;
   applyBayDeltas: (deltas: BayDelta[], timestamp: number) => void;
   setFullBays: (bays: LiveBayState[], timestamp: number) => void;
@@ -73,8 +71,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   bays: initialMultiBays,
-  selectedBayId: 'all',
-  setSelectedBayId: (selectedBayId) => set({ selectedBayId }),
 
   toggleBayBelt: (bayId: number) => {
     const adapter = getActiveAdapter();
@@ -184,13 +180,9 @@ export const useLastUpdateTimestamp = () => useDashboardStore(s => s.lastUpdateT
 export const useTimeframe = () => useDashboardStore(s => s.timeframe);
 export const useSetTimeframe = () => useDashboardStore(s => s.setTimeframe);
 export const useBays = () => useDashboardStore(s => s.bays);
-export const useBayById = (id: number) => useDashboardStore(s => s.bays.find(b => b.bayId === id) || s.bays[0]);
-export const useSelectedBayId = () => useDashboardStore(s => s.selectedBayId);
-export const useSetSelectedBayId = () => useDashboardStore(s => s.setSelectedBayId);
 export const useToggleBayBelt = () => useDashboardStore(s => s.toggleBayBelt);
 export const useIsSimulating = () => useDashboardStore(s => s.isSimulating);
 export const useToggleSimulation = () => useDashboardStore(s => s.toggleSimulation);
 export const useIncidents = () => useDashboardStore(s => s.incidents);
-export const useAuditLog = () => useDashboardStore(s => s.auditLog);
 export const useInspectedIncident = () => useDashboardStore(s => s.inspectedIncident);
 export const useSetInspectedIncident = () => useDashboardStore(s => s.setInspectedIncident);

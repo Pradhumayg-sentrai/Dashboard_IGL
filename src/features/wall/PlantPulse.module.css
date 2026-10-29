@@ -1,0 +1,268 @@
+.card {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.rateBlock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.rateValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.rateUnit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.rateTarget {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  padding-left: var(--space-1);
+  border-left: 1px solid var(--border);
+  margin-left: var(--space-1);
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.chartTile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  min-height: 0;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.chartTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chartMeta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.chartBox {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 108px;
+  width: 100%;
+}
+
+.chartCanvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.empty {
+  height: 100%;
+  min-height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.dotActual {
+  background: var(--accent);
+}
+
+.dotLoading {
+  background: var(--ok);
+}
+
+.dotStopped {
+  background: var(--critical);
+}
+
+.dotPreparing {
+  background: var(--warn);
+}
+
+.dotStandby {
+  background: var(--text-muted);
+}
+
+.dash {
+  width: 12px;
+  height: 0;
+  border-top: 2px dashed var(--warn);
+  flex: none;
+}
+
+.tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  box-shadow: var(--shadow-raised);
+  font-size: 0.75rem;
+  min-width: 130px;
+}
+
+.tooltipLabel {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.tooltipValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipValue span {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.tooltipMeta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 1920px) {
+  .title {
+    font-size: 1.0625rem;
+  }
+
+  .rateValue {
+    font-size: 1.625rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .chartBox {
+    min-height: 130px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-3);
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .rateBlock {
+    margin-left: 0;
+  }
+
+  .chartBox {
+    min-height: 130px;
+  }
+}

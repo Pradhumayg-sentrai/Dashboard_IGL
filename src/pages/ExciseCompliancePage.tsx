@@ -127,7 +127,7 @@ export const ExciseCompliancePage: React.FC = () => {
           <div style={{ 
             marginTop: 'auto', 
             paddingTop: '12px', 
-            borderTop: '1px solid var(--border-subtle)', 
+            borderTop: '1px solid var(--border)',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between',

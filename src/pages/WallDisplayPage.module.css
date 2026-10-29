@@ -4,10 +4,24 @@
   gap: var(--space-3);
 }
 
+.bottomRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
 /* 1920x1080 Control Room Wall Display Mode */
 @media (min-width: 1800px) {
   .wallContainer {
     gap: var(--space-2);
+  }
+}
+
+/* Mid-size screens: keep the pulse charts readable above the alarm list */
+@media (max-width: 1279px) {
+  .bottomRow {
+    grid-template-columns: 1fr;
   }
 }
 

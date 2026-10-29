@@ -141,7 +141,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
           <div className={styles.telemetryItem}>
             <Gauge size={16} color="var(--warn)" />
             <span>
-              Current Pace: <strong className={styles.itemStrong}>{liveBay.paceCpm} cases/min</strong>
+              Current Pace: <strong className={styles.itemStrong}>{Math.round(liveBay.paceCpm * 60).toLocaleString()} cartons/hr</strong>
             </span>
           </div>
 

@@ -51,16 +51,17 @@ interface CustomTooltipProps {
   label?: string;
   unit: string;
   target: number;
+  isRate: boolean;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, unit, target }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, unit, target, isRate }) => {
   if (!active || !payload || payload.length === 0) return null;
 
   const dataPoint = payload[0].payload;
   const currentVol = dataPoint.volume;
   const prevVol = dataPoint.previousVolume;
   const attainment = target > 0 ? Math.round((currentVol / target) * 100) : 0;
-  const isPerMinute = unit === 'cases / min';
+  const unitLabel = isRate ? 'cases/hr' : 'cases';
 
   return (
     <div className={styles.tooltipCard}>
@@ -68,11 +69,11 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, u
         Interval: <strong style={{ color: 'var(--text)' }}>{label}</strong>
       </div>
       <div className={styles.tooltipVolume}>
-        {isPerMinute ? 'Rate' : 'Volume'}: {currentVol.toLocaleString()} {isPerMinute ? 'cases/min' : 'cases'}
+        {isRate ? 'Rate' : 'Volume'}: {currentVol.toLocaleString()} {unitLabel}
       </div>
       {prevVol !== undefined && (
         <div className={styles.tooltipPrev}>
-          Prev Period: {prevVol.toLocaleString()} {isPerMinute ? 'cases/min' : 'cases'} ({Number((currentVol - prevVol).toFixed(1)) >= 0 ? '+' : ''}{Number((currentVol - prevVol).toFixed(1)).toLocaleString()})
+          Prev Period: {prevVol.toLocaleString()} {unitLabel} ({Number((currentVol - prevVol).toFixed(1)) >= 0 ? '+' : ''}{Number((currentVol - prevVol).toFixed(1)).toLocaleString()})
         </div>
       )}
       <div className={styles.tooltipTarget}>
@@ -99,7 +100,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
   const getTargetConfig = useCallback((tf: Timeframe) => {
     switch (tf) {
       case 'realtime':
-        return { defaultVal: 20, min: 8, max: 32, step: 1, unit: 'cases / min' };
+        return { defaultVal: 1200, min: 480, max: 1920, step: 60, unit: 'cases / hr' };
       case 'daily':
         return { defaultVal: 1100, min: 400, max: 2000, step: 50, unit: 'cases / hr' };
       case 'monthly':
@@ -142,13 +143,19 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
         return true;
       })
       .map((point, idx) => {
+        // Realtime samples are stored per minute; the chart presents them hourly.
+        const hourlyScale = timeframe === 'realtime' ? 60 : 1;
+
         // Deterministic previous period comparison curve
         const varianceFactor = 0.92 + ((idx % 4) * 0.035);
         const prevVolume = timeframe === 'realtime'
-          ? Number((point.volume * varianceFactor).toFixed(1))
+          ? Number((point.volume * varianceFactor * hourlyScale).toFixed(1))
           : Math.round(point.volume * varianceFactor);
         return {
           ...point,
+          volume: timeframe === 'realtime'
+            ? Number((point.volume * hourlyScale).toFixed(1))
+            : point.volume,
           previousVolume: prevVolume,
         };
       });
@@ -166,7 +173,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
 
   // Cases expected across one 8-hour shift for the active target unit
   const shiftTargetCases = timeframe === 'realtime'
-    ? customTarget * 60 * 8
+    ? customTarget * 8
     : timeframe === 'daily'
       ? customTarget * 8
       : customTarget / 90;
@@ -240,7 +247,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
             </h3>
           </div>
           <p className={styles.subtitle}>
-            {timeframe === 'realtime' && 'Per-minute dispatch rate vs target'}
+            {timeframe === 'realtime' && 'Hourly dispatch rate vs target · 5-min samples'}
             {timeframe === 'daily' && '24-hour dispatch curve across shifts'}
             {timeframe === 'monthly' && 'Daily volume vs dispatch target'}
             {timeframe === 'yearly' && '12-month trend vs monthly quota'}
@@ -438,12 +445,14 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
                   stroke="var(--text-muted)" 
                   domain={[0, yMax]}
                   tick={{ fontSize: 11, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                  tickFormatter={(val: number) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : `${val}`}
+                  tickFormatter={(val: number) => val >= 1000
+                    ? `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k`
+                    : `${val}`}
                   width={48}
                 />
 
                 <Tooltip 
-                  content={<CustomTooltip unit={config.unit} target={customTarget} />} 
+                  content={<CustomTooltip unit={config.unit} target={customTarget} isRate={timeframe === 'realtime'} />}
                 />
 
                 {/* Optional Range Brush for Zoom/Pan on Dense Data */}

@@ -1,5 +1,3 @@
-import dbSnapshot from './dbSnapshot.json';
-
 export type Timeframe = 'realtime' | 'daily' | 'monthly' | 'yearly';
 export type Shift = 'all' | 'shift_a' | 'shift_b' | 'shift_c';
 
@@ -417,11 +415,6 @@ export const initialMultiBays: LiveBayState[] = [
   },
 ];
 
-export const initialLiveBay: LiveBayState = initialMultiBays[0];
-
-// Extract real base data from app.db snapshot
-export const initialDbSnapshot = dbSnapshot;
-
 // Realistic Multi-Horizon Data Generator
 export function getKpisForTimeframe(timeframe: Timeframe): KPIStats {
   switch (timeframe) {
@@ -481,6 +474,7 @@ export function getChartDataForTimeframe(timeframe: Timeframe): ChartDataPoint[]
     case 'realtime':
       // Past 60 minutes sampled every 5 minutes, expressed as cases/min
       return [
+        { label: '12:10', volume: 18.4, target: 20 },
         { label: '12:15', volume: 17.6, target: 20 },
         { label: '12:20', volume: 18.8, target: 20 },
         { label: '12:25', volume: 19.2, target: 20 },
@@ -537,6 +531,41 @@ export function getChartDataForTimeframe(timeframe: Timeframe): ChartDataPoint[]
   }
 }
 
+/**
+ * One-minute samples for the wall's Plant Pulse. The realtime source is
+ * captured every five minutes, so interpolate between anchors to give the
+ * wall a true per-minute pulse over the rolling 60-minute window.
+ */
+export function getPlantPulseSamples(): ChartDataPoint[] {
+  const anchors = getChartDataForTimeframe('realtime');
+  if (anchors.length === 0) return [];
+
+  const [startHour, startMinute] = anchors[0].label.split(':').map(Number);
+  const totalMinutes = (anchors.length - 1) * 5;
+  const samples: ChartDataPoint[] = [];
+
+  for (let minute = 0; minute <= totalMinutes; minute += 1) {
+    const position = minute / 5;
+    const lowerIndex = Math.floor(position);
+    const upperIndex = Math.min(anchors.length - 1, Math.ceil(position));
+    const mix = position - lowerIndex;
+    const lower = anchors[lowerIndex];
+    const upper = anchors[upperIndex];
+    const base = lower.volume + (upper.volume - lower.volume) * mix;
+    // A small deterministic wiggle keeps the minute-level line from looking ruled.
+    const wobble = mix === 0 ? 0 : Math.sin(minute * 1.7) * 0.18;
+    const clockMinutes = startHour * 60 + startMinute + minute;
+    const label = `${String(Math.floor(clockMinutes / 60) % 24).padStart(2, '0')}:${String(clockMinutes % 60).padStart(2, '0')}`;
+
+    samples.push({
+      label,
+      volume: Number(Math.max(0, base + wobble).toFixed(1)),
+      target: lower.target,
+    });
+  }
+
+  return samples;
+}
 
 export const sampleIncidents: IncidentItem[] = [
   {

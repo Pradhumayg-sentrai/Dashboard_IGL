@@ -25,7 +25,6 @@ import {
 } from '../../store/dashboardStore';
 import { exportDispatchReportCSV } from '../../utils/exportReport';
 import { ConnectionStatus } from '../../components/ConnectionStatus';
-import { ThemeToggle } from '../../components/ThemeToggle';
 import styles from './Navbar.module.css';
 
 export const Navbar: React.FC = () => {
@@ -125,8 +124,6 @@ export const Navbar: React.FC = () => {
               <span>Export CSV</span>
             </button>
           )}
-
-          <ThemeToggle />
 
           <ConnectionStatus />
 
