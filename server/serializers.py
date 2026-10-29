@@ -111,8 +111,8 @@ def _resolution_parts(row: Mapping[str, Any]) -> tuple[str | None, str | None, d
         reason = parsed.get("reason")
         actor = parsed.get("actor") if isinstance(parsed.get("actor"), dict) else None
         return (
-            str(notes).strip() or None if notes else None,
-            str(reason).strip() or None if reason else None,
+            (str(notes).strip() or None) if notes else None,
+            (str(reason).strip() or None) if reason else None,
             actor,
         )
 
@@ -146,7 +146,7 @@ def incident_to_out(row: Mapping[str, Any]) -> dict[str, Any]:
         "bay_name": row.get("bay_name"),
         "truck_reg": row.get("truck_reg"),
         "notes": notes,
-        "dismissal_reason": reason,
+        "dismissal_reason": reason if status == "dismissed" else None,
         "reviewed_by": None,
         "reviewed_by_id": None,
         "reviewed_at": None,

@@ -29,9 +29,8 @@ import {
   RotateCcw,
   CheckCheck,
   XCircle,
-  ShieldCheck,
-  ShieldX,
 } from 'lucide-react';
+import { StatusBadge, type StatusKind } from './StatusBadge';
 import styles from './IncidentsLossPrevention.module.css';
 
 type SortOption =
@@ -73,23 +72,17 @@ function formatIncidentType(type: string): string {
   return type.replaceAll('_', ' ');
 }
 
-function severityBadgeClass(severity: IncidentSeverity): string {
-  if (severity === 'critical' || severity === 'high') return 'badge badge-rose';
-  if (severity === 'medium') return 'badge badge-amber';
-  return 'badge badge-slate';
+function severityKind(severity: IncidentSeverity): StatusKind {
+  if (severity === 'critical') return 'critical';
+  if (severity === 'high') return 'high';
+  if (severity === 'medium') return 'warning';
+  return 'low';
 }
 
-function severityShortLabel(severity: IncidentSeverity): string {
-  if (severity === 'critical') return 'CRIT';
-  if (severity === 'high') return 'HIGH';
-  if (severity === 'medium') return 'MED';
-  return 'LOW';
-}
-
-function statusBadgeClass(status: IncidentStatus): string {
-  if (status === 'reviewed') return 'badge badge-emerald';
-  if (status === 'dismissed') return 'badge badge-slate';
-  return 'badge badge-amber';
+function statusKind(status: IncidentStatus): StatusKind {
+  if (status === 'reviewed') return 'reviewed';
+  if (status === 'dismissed') return 'dismissed';
+  return 'open';
 }
 
 function hasSecondApprover(removal: RemovalItem): boolean {
@@ -322,16 +315,13 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
   const openCount = incidents.filter(item => item.status === 'open').length;
 
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       <div className={styles.header}>
         <div>
           <div className={styles.titleGroup}>
-            <ShieldAlert size={20} color="#f43f5e" />
-            <h3 className={styles.title}>Quality, Damage & Loss Prevention Telemetry</h3>
+            <ShieldAlert size={18} color="var(--critical)" />
+            <h3 className={styles.title}>Incidents & Loss Prevention</h3>
           </div>
-          <p className={styles.subtitle}>
-            Real-time computer vision incidents (cam_in inside truck) & cryptographic removal audits
-          </p>
         </div>
 
         <div className={styles.tabGroup}>
@@ -536,9 +526,9 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
             <div className={styles.confirmPanel} role="alertdialog" aria-label="Confirm bulk action">
               <div className={styles.confirmHeader}>
                 {bulkConfirm.action === 'review' ? (
-                  <CheckCheck size={18} color="#34d399" />
+                  <CheckCheck size={18} color="var(--ok)" />
                 ) : (
-                  <AlertTriangle size={18} color="#fb7185" />
+                  <AlertTriangle size={18} color="var(--critical)" />
                 )}
                 <div>
                   <strong>
@@ -617,7 +607,7 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
             )}
 
             {!isLoading && isError && (
-              <div className={styles.stateBox} style={{ color: '#fb7185' }}>
+              <div className={styles.stateBox} style={{ color: 'var(--critical-text)' }}>
                 <AlertTriangle size={24} />
                 <span>{errorMessage}</span>
               </div>
@@ -648,18 +638,18 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
 
                 <div className={styles.incidentLeft}>
                   <div className={styles.badgeWrapper}>
-                    <span className={severityBadgeClass(item.severity)}>
-                      {severityShortLabel(item.severity)}
-                    </span>
+                    <StatusBadge kind={severityKind(item.severity)}>
+                      {item.severity}
+                    </StatusBadge>
                   </div>
                   <div>
                     <div className={styles.incidentTitleRow}>
                       <strong className={styles.incidentType}>
                         {formatIncidentType(item.type)}
                       </strong>
-                      <span className={statusBadgeClass(item.status)}>
-                        {item.status.toUpperCase()}
-                      </span>
+                      <StatusBadge kind={statusKind(item.status)}>
+                        {item.status}
+                      </StatusBadge>
                       <span className={styles.incidentTime}>{item.occurred_at}</span>
                     </div>
 
@@ -701,7 +691,7 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
                     title="View CCTV camera frame & bounding box"
                     aria-label="View CCTV camera frame & bounding box"
                   >
-                    <Eye size={12} color="#38bdf8" /> Frame Preview
+                    <Eye size={12} color="var(--accent)" /> Frame Preview
                   </button>
 
                   {item.status === 'open' && (
@@ -761,16 +751,14 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
                 >
                   <div className={styles.removalMain}>
                     <div className={styles.removalHeader}>
-                      <span className={`badge badge-rose ${styles.removalBadge}`}>
-                        <KeyRound size={12} />
-                        AUTHORIZED REMOVAL #{removal.id}
-                      </span>
+                      <StatusBadge kind="info" icon={KeyRound} className={styles.removalBadge}>
+                        Authorized removal #{removal.id}
+                      </StatusBadge>
                       <span className={styles.removalTime}>{removal.timestamp}</span>
                       {!secondApproverVerified && (
-                        <span className={`badge badge-amber ${styles.approverWarning}`}>
-                          <AlertTriangle size={11} />
+                        <StatusBadge kind="warning" className={styles.approverWarning}>
                           Missing 2nd approver
-                        </span>
+                        </StatusBadge>
                       )}
                     </div>
 
@@ -846,15 +834,13 @@ export const IncidentsLossPrevention: React.FC<IncidentsLossPreventionProps> = (
                   <div className={styles.removalIntegrity}>
                     <span className={styles.columnLabel}>Hash verified</span>
                     {removal.hash_verified ? (
-                      <span className={`badge badge-emerald ${styles.hashBadge}`}>
-                        <ShieldCheck size={12} />
+                      <StatusBadge kind="verified" className={styles.hashBadge}>
                         Verified
-                      </span>
+                      </StatusBadge>
                     ) : (
-                      <span className={`badge badge-rose ${styles.hashBadge}`}>
-                        <ShieldX size={12} />
+                      <StatusBadge kind="unverified" className={styles.hashBadge}>
                         Not verified
-                      </span>
+                      </StatusBadge>
                     )}
                     <span className={`font-mono ${styles.hashValue}`}>
                       {removal.hash ?? 'hash pending'}

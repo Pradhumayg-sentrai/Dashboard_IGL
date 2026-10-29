@@ -11,7 +11,7 @@ export function exportDispatchReportCSV(bays: LiveBayState[], kpis: KPIStats) {
   rows.push('================================================================================');
   rows.push('INDIA GLYCOLS LIMITED (IGL) - PLANT DISPATCH & EXCISE COMPLIANCE REPORT');
   rows.push(`Report Date: ${dateStr} | Generated At: ${timeStr} IST`);
-  rows.push('Facility: Kashipur / Gorakhpur Bottling & Loading Dock');
+  rows.push('Facility: Gorakhpur Bottling & Loading Dock');
   rows.push('Alembic Database Schema: head e5a1c7d3b902 (SQLite WAL app.db)');
   rows.push('================================================================================\n');
 

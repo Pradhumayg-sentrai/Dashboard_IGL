@@ -6,10 +6,9 @@ import csv
 import io
 import json
 import time
-from datetime import datetime
 from typing import Any, Iterable
 
-from sqlalchemy import bindparam, text
+from sqlalchemy import text
 from sqlalchemy.engine import Connection
 
 from .audit import append_audit_entry, verify_chain
@@ -150,22 +149,6 @@ def _placed_count(connection: Connection, session_id: int) -> int:
                   SELECT 1 FROM removed_cartons rc
                   WHERE rc.original_scan_id = sc.id
               )
-            """,
-            {"session_id": session_id},
-        )
-        or 0
-    )
-
-
-def _removed_count(connection: Connection, session_id: int) -> int:
-    return int(
-        _scalar(
-            connection,
-            """
-            SELECT COUNT(*)
-            FROM removed_cartons rc
-            JOIN removal_events re ON re.id = rc.removal_event_id
-            WHERE re.session_id = :session_id
             """,
             {"session_id": session_id},
         )
@@ -539,6 +522,17 @@ def fetch_snapshot(
     }
 
 
+def _db_datetime(value: str, *, end_of_day: bool = False) -> str:
+    """Normalise an API date/date-time to SQLite's text format."""
+
+    if len(value) == 10:
+        return f"{value} {'23:59:59.999999' if end_of_day else '00:00:00.000000'}"
+    parsed = parse_datetime(value)
+    if parsed is not None:
+        return parsed.strftime("%Y-%m-%d %H:%M:%S.%f")
+    return value
+
+
 def _incident_filters(
     *,
     status: Iterable[str] | None,
@@ -584,13 +578,10 @@ def _incident_filters(
         params["search"] = f"%{search}%"
     if date_from:
         clauses.append("i.occurred_at >= :date_from")
-        params["date_from"] = date_from
+        params["date_from"] = _db_datetime(date_from)
     if date_to:
-        value = date_to
-        if len(value) == 10:
-            value = f"{value} 23:59:59.999999"
         clauses.append("i.occurred_at <= :date_to")
-        params["date_to"] = value
+        params["date_to"] = _db_datetime(date_to, end_of_day=True)
 
     return " AND ".join(clauses), params
 
@@ -824,30 +815,50 @@ def create_removal(
     *,
     client_ip: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    session = _session_context(connection, request.session_id)
-    if session is None:
-        raise LookupError(f"Session #{request.session_id} was not found.")
-
     scan = None
     if request.scan_id is not None:
-        scan = _one(
-            connection,
-            "SELECT * FROM scans WHERE id = :scan_id AND session_id = :session_id",
-            {"scan_id": request.scan_id, "session_id": request.session_id},
-        )
+        if request.session_id is not None:
+            scan = _one(
+                connection,
+                "SELECT * FROM scans WHERE id = :scan_id AND session_id = :session_id",
+                {"scan_id": request.scan_id, "session_id": request.session_id},
+            )
+        else:
+            scan = _one(
+                connection,
+                "SELECT * FROM scans WHERE id = :scan_id",
+                {"scan_id": request.scan_id},
+            )
     elif request.barcode_value:
-        scan = _one(
-            connection,
-            """
-            SELECT * FROM scans
-            WHERE session_id = :session_id AND barcode_value = :barcode_value
-            ORDER BY id DESC
-            LIMIT 1
-            """,
-            {"session_id": request.session_id, "barcode_value": request.barcode_value},
-        )
+        if request.session_id is not None:
+            scan = _one(
+                connection,
+                """
+                SELECT * FROM scans
+                WHERE session_id = :session_id AND barcode_value = :barcode_value
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                {"session_id": request.session_id, "barcode_value": request.barcode_value},
+            )
+        else:
+            scan = _one(
+                connection,
+                """
+                SELECT * FROM scans
+                WHERE barcode_value = :barcode_value
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                {"barcode_value": request.barcode_value},
+            )
     if scan is None:
         raise LookupError("The selected carton scan was not found for this session.")
+
+    session_id = int(scan["session_id"])
+    session = _session_context(connection, session_id)
+    if session is None:
+        raise LookupError(f"Session #{session_id} was not found.")
 
     already_removed = _scalar(
         connection,
@@ -862,7 +873,7 @@ def create_removal(
     audit = append_audit_entry(
         connection,
         action="remove_carton",
-        session_id=request.session_id,
+        session_id=session_id,
         scan_id=int(scan["id"]),
         barcode_value=str(scan["barcode_value"]),
         bay_id=session.get("bay_id"),
@@ -891,7 +902,7 @@ def create_removal(
             """
         ),
         {
-            "session_id": request.session_id,
+            "session_id": session_id,
             "bay_id": session.get("bay_id"),
             "truck_reg": session.get("truck_reg"),
             "indent_no": session.get("indent_number"),
@@ -1125,9 +1136,22 @@ def bay_deltas_for_sessions(
         allocated_qty = int(session.get("indent_qty") or 0)
         duration = _minutes_between(session.get("started_at"), session.get("ended_at"))
         is_active = session.get("status") in {"open", "loading"}
+        is_setup = session.get("status") == "setup"
         pace = loaded_qty / duration if is_active and duration > 0 else 0.0
         latest_scan = _latest_scan(connection, session_id)
         remaining = max(0, allocated_qty - loaded_qty)
+        if is_active:
+            bay_status, belt_state, stop_cause = "loading", "running", None
+        elif is_setup:
+            bay_status, belt_state, stop_cause = "preparing", "paused", "Session setup"
+        elif session.get("status") == "closed":
+            bay_status, belt_state, stop_cause = "standby", "stopped", "Session closed"
+        elif session.get("status") == "aborted":
+            bay_status, belt_state, stop_cause = "stopped", "stopped", "Session aborted"
+        else:
+            bay_status = "stopped"
+            belt_state = "stopped"
+            stop_cause = f"Session {session.get('status')}"
         deltas.append(
             {
                 "bayId": bay_id,
@@ -1136,9 +1160,9 @@ def bay_deltas_for_sessions(
                     (latest_scan or {}).get("barcode_value") or "Awaiting Slip Scan"
                 ),
                 "estimatedRemainingMinutes": round(remaining / pace, 1) if pace > 0 else 0.0,
-                "status": "loading" if is_active else "standby",
-                "beltState": "running" if is_active else "stopped",
-                "stopCause": None if is_active else f"Session {session.get('status')}",
+                "status": bay_status,
+                "beltState": belt_state,
+                "stopCause": stop_cause,
                 "paceCpm": round(pace, 1),
                 "lastUpdated": timestamp,
             }

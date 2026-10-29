@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Python
+__pycache__/
+*.py[cod]
+server/.venv/
+.pytest_cache/
+
+# SQLite runtime sidecars
+app.db-shm
+app.db-wal
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

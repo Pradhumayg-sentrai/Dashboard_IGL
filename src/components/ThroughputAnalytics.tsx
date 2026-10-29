@@ -6,8 +6,8 @@ import {
   Plus, 
   Minus, 
   MoveVertical,
-  CheckCircle2, 
-  AlertCircle,
+  CheckCircle2,
+  TrendingUp,
   Loader2,
   AlertTriangle,
   Inbox,
@@ -26,6 +26,7 @@ import {
   Brush,
   ReferenceLine
 } from 'recharts';
+import { StatusBadge } from './StatusBadge';
 import styles from './ThroughputAnalytics.module.css';
 
 interface ThroughputAnalyticsProps {
@@ -59,18 +60,19 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, u
   const currentVol = dataPoint.volume;
   const prevVol = dataPoint.previousVolume;
   const attainment = target > 0 ? Math.round((currentVol / target) * 100) : 0;
+  const isPerMinute = unit === 'cases / min';
 
   return (
     <div className={styles.tooltipCard}>
       <div className={styles.tooltipInterval}>
-        Interval: <strong style={{ color: '#fff' }}>{label}</strong>
+        Interval: <strong style={{ color: 'var(--text)' }}>{label}</strong>
       </div>
       <div className={styles.tooltipVolume}>
-        Volume: {currentVol.toLocaleString()} cases
+        {isPerMinute ? 'Rate' : 'Volume'}: {currentVol.toLocaleString()} {isPerMinute ? 'cases/min' : 'cases'}
       </div>
       {prevVol !== undefined && (
         <div className={styles.tooltipPrev}>
-          Prev Period: {prevVol.toLocaleString()} cases ({currentVol >= prevVol ? '+' : ''}{(currentVol - prevVol).toLocaleString()})
+          Prev Period: {prevVol.toLocaleString()} {isPerMinute ? 'cases/min' : 'cases'} ({Number((currentVol - prevVol).toFixed(1)) >= 0 ? '+' : ''}{Number((currentVol - prevVol).toFixed(1)).toLocaleString()})
         </div>
       )}
       <div className={styles.tooltipTarget}>
@@ -97,7 +99,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
   const getTargetConfig = useCallback((tf: Timeframe) => {
     switch (tf) {
       case 'realtime':
-        return { defaultVal: 100, min: 40, max: 160, step: 5, unit: 'cases / 5-min' };
+        return { defaultVal: 20, min: 8, max: 32, step: 1, unit: 'cases / min' };
       case 'daily':
         return { defaultVal: 1100, min: 400, max: 2000, step: 50, unit: 'cases / hr' };
       case 'monthly':
@@ -142,7 +144,9 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
       .map((point, idx) => {
         // Deterministic previous period comparison curve
         const varianceFactor = 0.92 + ((idx % 4) * 0.035);
-        const prevVolume = Math.round(point.volume * varianceFactor);
+        const prevVolume = timeframe === 'realtime'
+          ? Number((point.volume * varianceFactor).toFixed(1))
+          : Math.round(point.volume * varianceFactor);
         return {
           ...point,
           previousVolume: prevVolume,
@@ -151,11 +155,21 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
   }, [chartData, selectedShift, timeframe]);
 
   // Target attainment calculation
-  const avgVolume = processedData.length > 0 
-    ? Math.round(processedData.reduce((acc, d) => acc + d.volume, 0) / processedData.length)
+  const avgVolumeRaw = processedData.length > 0 
+    ? processedData.reduce((acc, d) => acc + d.volume, 0) / processedData.length
     : 0;
+  const avgVolume = timeframe === 'realtime'
+    ? Number(avgVolumeRaw.toFixed(1))
+    : Math.round(avgVolumeRaw);
   const pacingPercentage = customTarget > 0 ? Math.round((avgVolume / customTarget) * 100) : 0;
-  const pacingDiff = avgVolume - customTarget;
+  const pacingDiff = Number((avgVolume - customTarget).toFixed(1));
+
+  // Cases expected across one 8-hour shift for the active target unit
+  const shiftTargetCases = timeframe === 'realtime'
+    ? customTarget * 60 * 8
+    : timeframe === 'daily'
+      ? customTarget * 8
+      : customTarget / 90;
 
   // Max scale calculation for YAxis and drag coordinator
   const maxDataVolume = processedData.length > 0 
@@ -214,37 +228,32 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
   const handleTopStyle = `${100 - targetPct}%`;
 
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       
       {/* 1. Header & Live Attainment Badge */}
       <div className={styles.header}>
         <div>
           <div className={styles.titleRow}>
-            <BarChart3 size={20} color="#38bdf8" />
+            <BarChart3 size={20} color="var(--accent)" />
             <h3 className={styles.title}>
               Throughput & Loading Cadence
             </h3>
           </div>
           <p className={styles.subtitle}>
-            {timeframe === 'realtime' && 'Live 5-minute carton dispatch rate vs dynamic target (Recharts Engine)'}
-            {timeframe === 'daily' && '24-hour dispatch curve across Shifts A, B & C (Set Target/Hour)'}
-            {timeframe === 'monthly' && 'Daily volume progression vs daily dispatch target (October)'}
-            {timeframe === 'yearly' && '12-month seasonal dispatch trend vs monthly quota'}
+            {timeframe === 'realtime' && 'Per-minute dispatch rate vs target'}
+            {timeframe === 'daily' && '24-hour dispatch curve across shifts'}
+            {timeframe === 'monthly' && 'Daily volume vs dispatch target'}
+            {timeframe === 'yearly' && '12-month trend vs monthly quota'}
           </p>
         </div>
 
         <div className={styles.headerControls}>
-          {pacingPercentage >= 100 ? (
-            <span className={`badge badge-emerald ${styles.pacingBadge}`}>
-              <CheckCircle2 size={13} />
-              Pacing {pacingPercentage}% (+{pacingDiff.toLocaleString()} {config.unit})
-            </span>
-          ) : (
-            <span className={`badge badge-amber ${styles.pacingBadge}`}>
-              <AlertCircle size={13} />
-              Pacing {pacingPercentage}% ({pacingDiff.toLocaleString()} {config.unit})
-            </span>
-          )}
+          <StatusBadge
+            kind={pacingPercentage >= 100 ? 'ok' : 'warning'}
+            className={styles.pacingBadge}
+          >
+            Pacing {pacingPercentage}% ({pacingDiff >= 0 ? '+' : ''}{pacingDiff.toLocaleString()} {config.unit})
+          </StatusBadge>
         </div>
       </div>
 
@@ -285,7 +294,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
             onChange={(e) => setCompareToPrevious(e.target.checked)}
             className={styles.compareCheckbox}
           />
-          <GitCompare size={14} color="#38bdf8" />
+          <GitCompare size={14} color="var(--accent)" />
           <span>Compare to Prev. Period</span>
         </label>
       </div>
@@ -293,7 +302,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
       {/* 3. Target Control Toolbar */}
       <div className={styles.targetToolbar}>
         <div className={styles.targetLabelGroup}>
-          <Target size={18} color="#fbbf24" />
+          <Target size={18} color="var(--warn)" />
           <span className={styles.targetLabel}>
             SET PLANT TARGET:
           </span>
@@ -333,7 +342,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
           </button>
 
           <span className={styles.dragHint}>
-            <MoveVertical size={13} color="#fbbf24" />
+            <MoveVertical size={13} color="var(--warn)" />
             <span>or drag line on chart</span>
           </span>
         </div>
@@ -396,8 +405,9 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
               onTouchStart={handleTouchStart}
               title="Click and drag to adjust target quota"
             >
-              <span>🎯 {customTarget.toLocaleString()}</span>
-              <MoveVertical size={12} />
+              <Target size={12} aria-hidden="true" />
+              <span>{customTarget.toLocaleString()}</span>
+              <MoveVertical size={12} aria-hidden="true" />
             </div>
 
             <ResponsiveContainer width="100%" height={260}>
@@ -407,21 +417,21 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
               >
                 <defs>
                   <linearGradient id="volumeAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0284c7" stopOpacity={0.45} />
-                    <stop offset="95%" stopColor="#0284c7" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.32} />
+                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
 
                 <CartesianGrid 
                   strokeDasharray="3 3" 
-                  stroke="rgba(255, 255, 255, 0.06)" 
+                  stroke="var(--chart-grid)" 
                 />
 
                 <XAxis 
                   dataKey="label" 
                   stroke="var(--text-muted)" 
                   tick={{ fontSize: 11, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                  tickLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+                  tickLine={{ stroke: 'var(--border)' }}
                 />
 
                 <YAxis 
@@ -441,8 +451,8 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
                   <Brush 
                     dataKey="label" 
                     height={24} 
-                    stroke="#38bdf8" 
-                    fill="rgba(15, 23, 42, 0.9)"
+                    stroke="var(--accent)" 
+                    fill="var(--surface)"
                     tickFormatter={() => ''}
                   />
                 )}
@@ -453,7 +463,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
                     type="monotone" 
                     dataKey="previousVolume" 
                     name="Previous Period"
-                    stroke="#64748b" 
+                    stroke="var(--text-muted)" 
                     strokeWidth={1.8} 
                     strokeDasharray="4 4" 
                     dot={false}
@@ -465,7 +475,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
                   type="monotone" 
                   dataKey="volume" 
                   name="Cartons Dispatched"
-                  stroke="#38bdf8" 
+                  stroke="var(--accent)" 
                   strokeWidth={2.5} 
                   fillOpacity={1} 
                   fill="url(#volumeAreaGradient)" 
@@ -474,7 +484,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
                 {/* Movable Target Quota Reference Line */}
                 <ReferenceLine 
                   y={customTarget} 
-                  stroke="#f59e0b" 
+                  stroke="var(--warn)" 
                   strokeDasharray="6 3" 
                   strokeWidth={2}
                 />
@@ -485,16 +495,16 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
             <div className={styles.legendRow}>
               <div className={styles.legendItem}>
                 <span className={styles.legendDotVolume}></span>
-                <span>Actual Dispatched Volume</span>
+                <span>{timeframe === 'realtime' ? 'Actual Dispatch Rate' : 'Actual Dispatched Volume'}</span>
               </div>
               <div className={styles.legendItem}>
                 <span className={styles.legendDotTarget}></span>
-                <span style={{ color: '#fbbf24' }}>Plant Target ({customTarget.toLocaleString()})</span>
+                <span style={{ color: 'var(--warn-text)' }}>Plant Target ({customTarget.toLocaleString()})</span>
               </div>
               {compareToPrevious && (
                 <div className={styles.legendItem}>
                   <span className={styles.legendDotPrev}></span>
-                  <span style={{ color: '#94a3b8' }}>Previous Period Baseline</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Previous Period Baseline</span>
                 </div>
               )}
             </div>
@@ -507,8 +517,9 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
         <div className={styles.shiftCard}>
           <div className={styles.shiftCardHeader}>
             <span className={styles.shiftName}>Shift A (Morning)</span>
-            <span className={`badge badge-emerald ${styles.shiftBadge}`}>
-              {Math.round((7840 / (customTarget * 8)) * 100)}%
+            <span className={`badge badge-ok ${styles.shiftBadge}`}>
+              <CheckCircle2 size={11} aria-hidden="true" />
+              {Math.round((7840 / shiftTargetCases) * 100)}%
             </span>
           </div>
           <div className={styles.shiftVolume}>
@@ -520,8 +531,9 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
         <div className={styles.shiftCard}>
           <div className={styles.shiftCardHeader}>
             <span className={styles.shiftName}>Shift B (Evening)</span>
-            <span className={`badge badge-cyan ${styles.shiftBadge}`}>
-              {Math.round((7980 / (customTarget * 8)) * 100)}%
+            <span className={`badge badge-info ${styles.shiftBadge}`}>
+              <TrendingUp size={11} aria-hidden="true" />
+              {Math.round((7980 / shiftTargetCases) * 100)}%
             </span>
           </div>
           <div className={`${styles.shiftVolume} ${styles.shiftVolumeCyan}`}>
@@ -533,7 +545,7 @@ export const ThroughputAnalytics: React.FC<ThroughputAnalyticsProps> = ({
         <div className={styles.shiftCard}>
           <div className={styles.shiftCardHeader}>
             <span className={styles.shiftName}>Shift C (Night)</span>
-            <span className={`badge badge-slate ${styles.shiftBadge}`}>Upcoming</span>
+            <StatusBadge kind="standby" className={styles.shiftBadge}>Upcoming</StatusBadge>
           </div>
           <div className={`${styles.shiftVolume} ${styles.shiftVolumeSlate}`}>
             2,630 <span className={styles.shiftUnit}>est.</span>

@@ -26,7 +26,7 @@ export const AppLayout: React.FC = () => {
       <Navbar />
 
       {/* 2. Routed Page Body */}
-      <main id="main-content">
+      <main id="main-content" className={styles.content}>
         <Outlet />
       </main>
 
@@ -46,9 +46,9 @@ export const AppLayout: React.FC = () => {
 
       {/* 4. Global Footer */}
       <footer className={styles.footer}>
-        <p>India Glycols Limited (IGL) • Multi-Bay Automated Truck Dispatch & AI Vision Surveillance System</p>
+        <p>India Glycols Limited • Automated Truck Dispatch & Surveillance</p>
         <p className={styles.footerMeta}>
-          Active Bays: 4 • Assigned Supervisors: 4 • Live Connection: SQLite WAL <span className="font-mono">app.db</span> • Redis 6379 • Android ADB 5037
+          SQLite WAL <span className="font-mono">app.db</span> • Redis 6379 • Android ADB 5037
         </p>
       </footer>
 

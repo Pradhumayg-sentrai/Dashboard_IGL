@@ -13,24 +13,20 @@ import {
   Cpu, 
   Video, 
   Smartphone, 
-  Printer, 
   UserCheck, 
-  Phone, 
-  ArrowLeft,
-  AlertTriangle 
+  Phone
 } from 'lucide-react';
+import { StatusBadge } from './StatusBadge';
 import styles from './LiveBayMonitor.module.css';
 
 interface LiveBayMonitorProps {
   liveBay: LiveBayState;
   onToggleBelt: () => void;
-  onBackToAllBays?: () => void;
 }
 
 export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ 
   liveBay, 
-  onToggleBelt,
-  onBackToAllBays
+  onToggleBelt
 }) => {
   const [now, setNow] = useState<number>(Date.now());
 
@@ -40,7 +36,10 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
   }, []);
 
   const staleAgeMs = now - (liveBay.lastUpdated || 0);
-  const isStale = staleAgeMs > 10000;
+  const isStale =
+    liveBay.status === 'loading' &&
+    liveBay.beltState === 'running' &&
+    staleAgeMs > 10000;
   const staleSeconds = Math.floor(staleAgeMs / 1000);
 
   const percentComplete = Math.min(100, (liveBay.loadedQty / liveBay.allocatedQty) * 100);
@@ -50,51 +49,50 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
       case 'mvid01': return <Barcode size={16} />;
       case 'cpplus01': return <Video size={16} />;
       case 'posHandset': return <Smartphone size={16} />;
-      case 'zebraPrinter': return <Printer size={16} />;
       default: return <Cpu size={16} />;
     }
   };
 
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       
       {/* Header Bar */}
       <div className={styles.header}>
         <div>
           <div className={styles.headerLeft}>
-            {onBackToAllBays && (
-              <button 
-                onClick={onBackToAllBays}
-                className={`btn-action btn-ghost ${styles.backBtn}`}
-                title="Back to fleet view"
-                aria-label="Back to all bays"
-              >
-                <ArrowLeft size={13} />
-                <span>All Bays</span>
-              </button>
-            )}
             <h2 className={styles.title}>
-              {liveBay.bayName} ({liveBay.dockLocation})
+              {liveBay.bayName}
             </h2>
             {isStale && (
-              <span className="badge badge-amber" title={`Telemetry feed paused for ${staleSeconds}s (>10s threshold)`}>
-                <AlertTriangle size={11} />
-                DATA STALE ({staleSeconds}s)
-              </span>
+              <StatusBadge
+                kind="stale"
+                title={`Telemetry feed paused for ${staleSeconds}s (>10s threshold)`}
+              >
+                Data stale ({staleSeconds}s)
+              </StatusBadge>
             )}
-            <span className={`badge ${liveBay.status === 'loading' ? 'badge-emerald' : liveBay.status === 'stopped' ? 'badge-rose' : 'badge-cyan'}`}>
-              <span className={`pulse-dot ${liveBay.status === 'loading' ? 'online' : liveBay.status === 'stopped' ? 'warning' : ''}`}></span>
-              {liveBay.status.toUpperCase()}
-            </span>
+            <StatusBadge
+              kind={
+                liveBay.status === 'loading'
+                  ? 'loading'
+                  : liveBay.status === 'stopped'
+                    ? 'stopped'
+                    : liveBay.status === 'standby'
+                      ? 'standby'
+                      : 'preparing'
+              }
+            >
+              {liveBay.status}
+            </StatusBadge>
           </div>
           <p className={styles.subtitle}>
-            Conveyor Lane {liveBay.bayId} • Connected to Hikrobot Reader & Android POS Handset
+            Lane {liveBay.bayId} • {liveBay.dockLocation} • Hikrobot reader & Android POS
           </p>
         </div>
 
         {/* Vehicle Badge */}
         <div className={styles.vehicleBox}>
-          <Truck size={18} color="#38bdf8" />
+          <Truck size={18} color="var(--accent)" />
           <div>
             <div className={styles.vehicleLabel}>Target Vehicle</div>
             <div className={`font-mono ${styles.vehicleReg}`}>
@@ -141,7 +139,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
         {/* Live Loading Telemetry Pills */}
         <div className={styles.telemetryRow}>
           <div className={styles.telemetryItem}>
-            <Gauge size={16} color="#fbbf24" />
+            <Gauge size={16} color="var(--warn)" />
             <span>
               Current Pace: <strong className={styles.itemStrong}>{liveBay.paceCpm} cases/min</strong>
             </span>
@@ -151,7 +149,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
             <span className={styles.beltLabel}>Conveyor Belt:</span>
             <button 
               onClick={onToggleBelt}
-              className={`badge ${liveBay.beltState === 'running' ? 'badge-emerald' : 'badge-amber'} ${styles.beltToggleBtn}`}
+              className={`badge ${liveBay.beltState === 'running' ? 'badge-ok' : 'badge-warn'} ${styles.beltToggleBtn}`}
               title="Click to toggle belt state"
               aria-label={`Toggle belt: currently ${liveBay.beltState}`}
             >
@@ -161,7 +159,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
           </div>
 
           <div className={styles.gateItem}>
-            <CheckCircle2 size={16} color={liveBay.gateFlag === 'pass' ? '#34d399' : '#fbbf24'} />
+            <CheckCircle2 size={16} color={liveBay.gateFlag === 'pass' ? 'var(--ok)' : 'var(--warn)'} />
             <span>
               Gate: <strong className={liveBay.gateFlag === 'pass' ? styles.gatePass : styles.gateWait}>
                 {liveBay.gateFlag.toUpperCase()} ({liveBay.gateReason.toUpperCase()})
@@ -184,7 +182,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
           </div>
           <div>
             <div className={styles.supLabel}>
-              <UserCheck size={12} color="#34d399" />
+              <UserCheck size={12} color="var(--ok)" />
               Assigned Supervisor
             </div>
             <div className={styles.supName}>
@@ -199,7 +197,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
         {/* Latest Decoded Barcode */}
         <div className={styles.barcodeCard}>
           <div className={styles.barcodeHeader}>
-            <Barcode size={14} color="#34d399" />
+            <Barcode size={14} color="var(--ok)" />
             <span className={styles.barcodeLabel}>Latest Decoded Carton</span>
           </div>
           <div className={`font-mono ${styles.barcodeVal}`}>
@@ -212,10 +210,32 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({
 
       </div>
 
+      {/* Shipment manifest context */}
+      <div className={styles.manifestGrid}>
+        <div className={styles.manifestItem}>
+          <div className={styles.manifestLabel}>Dispatch Indent</div>
+          <div className={`font-mono ${styles.manifestValue}`} title={liveBay.indentNo}>
+            {liveBay.indentNo}
+          </div>
+        </div>
+        <div className={styles.manifestItem}>
+          <div className={styles.manifestLabel}>Excise Licence</div>
+          <div className={`font-mono ${styles.manifestValue}`} title={liveBay.licenceNo}>
+            {liveBay.licenceNo}
+          </div>
+        </div>
+        <div className={styles.manifestItem}>
+          <div className={styles.manifestLabel}>Session Active</div>
+          <div className={styles.manifestValue}>
+            {liveBay.sessionDurationMinutes} min
+          </div>
+        </div>
+      </div>
+
       {/* Hardware Telemetry Bar */}
       <div>
         <div className={styles.hwHeader}>
-          <Radio size={14} color="#38bdf8" />
+          <Radio size={14} color="var(--accent)" />
           <span className={styles.hwTitle}>
             {liveBay.bayName} Hardware Status & Device Diagnostics
           </span>

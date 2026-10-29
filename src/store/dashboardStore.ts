@@ -159,7 +159,22 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     set(state => ({ auditLog: [entry, ...state.auditLog].slice(0, 500) }));
   },
 
-  getKpis: () => getKpisForTimeframe(get().timeframe),
+  getKpis: () => {
+    const { timeframe, bays } = get();
+    const kpis = getKpisForTimeframe(timeframe);
+
+    if (timeframe !== 'realtime') return kpis;
+
+    // Keep the live scorecard aligned with the actual fleet instead of a
+    // single hard-coded bay.
+    return {
+      ...kpis,
+      totalDispatched: bays.reduce((sum, bay) => sum + bay.loadedQty, 0),
+      dispatchTarget: bays.reduce((sum, bay) => sum + bay.allocatedQty, 0),
+      trucksTarget: bays.length,
+      activeAlarmsCount: bays.filter(bay => bay.status === 'stopped').length,
+    };
+  },
   getChartData: () => getChartDataForTimeframe(get().timeframe),
 }));
 

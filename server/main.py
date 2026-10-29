@@ -16,7 +16,7 @@ from sqlalchemy.engine import Connection
 from starlette.websockets import WebSocketDisconnect
 
 from .audit import bootstrap_audit_schema, verify_chain
-from .db import get_read_db, get_write_db
+from .db import get_read_db, get_write_db, read_engine
 from .repository import (
     bay_deltas_for_sessions,
     create_removal,
@@ -46,6 +46,7 @@ from .schemas import (
     RemovalCreateResponse,
     Snapshot,
 )
+from .serializers import iso
 
 
 @asynccontextmanager
@@ -159,7 +160,11 @@ def api_incident(incident_id: int, connection: Connection = Depends(get_read_db)
 @app.post(
     "/api/incidents/{incident_id}/review",
     response_model=IncidentReviewResponse,
-    responses={404: {"model": ErrorResponse}, 409: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse},
+        404: {"model": ErrorResponse},
+        409: {"model": ErrorResponse},
+    },
     tags=["incidents"],
 )
 def api_review_incident(
@@ -211,7 +216,11 @@ def api_removals(
     "/api/removals",
     response_model=RemovalCreateResponse,
     status_code=201,
-    responses={404: {"model": ErrorResponse}, 409: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse},
+        404: {"model": ErrorResponse},
+        409: {"model": ErrorResponse},
+    },
     tags=["removals"],
 )
 def api_create_removal(
@@ -290,7 +299,7 @@ def _poll_once(
     incident_cursor: int,
     timestamp: int,
 ) -> tuple[int, int, list[dict], list[dict], list[dict]]:
-    with get_read_connection() as connection:
+    with read_engine.connect() as connection:
         scans = scans_after(connection, cursor)
         incidents = incidents_after(connection, incident_cursor)
         session_ids = [int(scan["session_id"]) for scan in scans]
@@ -306,8 +315,8 @@ def _poll_once(
                 "session_id": scan["session_id"],
                 "camera_id": scan["camera_id"],
                 "barcode_value": scan["barcode_value"],
-                "first_seen": scan["first_seen"],
-                "last_seen": scan["last_seen"],
+                "first_seen": iso(scan["first_seen"]),
+                "last_seen": iso(scan["last_seen"]),
                 "custody_state": scan["custody_state"],
                 "gate_flag": scan["gate_flag"],
                 "gate_reason": scan["gate_reason"],
@@ -315,14 +324,6 @@ def _poll_once(
             for scan in scans
         ]
     return new_cursor, new_incident_cursor, deltas, scan_deltas, incidents
-
-
-def get_read_connection():
-    """Small helper that keeps the WebSocket poller independent of FastAPI DI."""
-
-    from .db import read_engine
-
-    return read_engine.connect()
 
 
 async def _receive_loop(websocket: WebSocket) -> None:
@@ -379,7 +380,7 @@ async def _poll_loop(
 async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
     seq = 1
-    with get_read_connection() as connection:
+    with read_engine.connect() as connection:
         snapshot = fetch_snapshot(connection, seq=seq)
         cursor = scan_cursor(connection)
         incident_cursor = max_incident_id(connection)

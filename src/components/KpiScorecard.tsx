@@ -1,6 +1,7 @@
 import React from 'react';
 import type { KPIStats, Timeframe } from '../data/plantData';
 import { PackageCheck, Truck, Timer, ShieldCheck, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { StatusBadge } from './StatusBadge';
 import styles from './KpiScorecard.module.css';
 
 interface KpiScorecardProps {
@@ -26,7 +27,7 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
     <div className="kpi-grid">
       
       {/* 1. Total Cartons Dispatched */}
-      <div className={`glass-card ${styles.kpiCard}`}>
+      <div className={`card kpi ${styles.kpiCard}`}>
         <div className={styles.cardTop}>
           <div>
             <span className={styles.cardLabel}>
@@ -61,7 +62,7 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
       </div>
 
       {/* 2. Trucks Cleared & Sealed */}
-      <div className={`glass-card ${styles.kpiCard}`}>
+      <div className={`card kpi ${styles.kpiCard}`}>
         <div className={styles.cardTop}>
           <div>
             <span className={styles.cardLabel}>
@@ -80,19 +81,10 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
             <Truck size={22} />
           </div>
         </div>
-
-        <div className={styles.cardFooter}>
-          <span className="badge badge-emerald">
-            1 Active at Bay 1
-          </span>
-          <span className={styles.cardFooterText}>
-            Zero queue congestion
-          </span>
-        </div>
       </div>
 
       {/* 3. Average Turnaround Time (TAT) */}
-      <div className={`glass-card ${styles.kpiCard}`}>
+      <div className={`card kpi ${styles.kpiCard}`}>
         <div className={styles.cardTop}>
           <div>
             <span className={styles.cardLabel}>
@@ -125,7 +117,7 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
       </div>
 
       {/* 4. Excise Clearance Rate */}
-      <div className={`glass-card ${styles.kpiCard}`}>
+      <div className={`card kpi ${styles.kpiCard}`}>
         <div className={styles.cardTop}>
           <div>
             <span className={styles.cardLabel}>
@@ -134,9 +126,6 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
             <div className={styles.valueRow}>
               <span className={styles.metricValue}>
                 {kpis.clearanceRate}%
-              </span>
-              <span className={styles.highCompliance}>
-                High Compliance
               </span>
             </div>
           </div>
@@ -149,9 +138,9 @@ export const KpiScorecard: React.FC<KpiScorecardProps> = ({ kpis, timeframe }) =
           <span className={styles.cardFooterText}>
             Refusals: <strong className={kpis.refusalCount > 0 ? styles.refusalAlert : styles.refusalNormal}>{kpis.refusalCount} cases</strong>
           </span>
-          <span className={`badge badge-cyan ${styles.slaBadge}`}>
+          <StatusBadge kind="info" className={styles.slaBadge}>
             Portal SLA 0.22s
-          </span>
+          </StatusBadge>
         </div>
       </div>
 

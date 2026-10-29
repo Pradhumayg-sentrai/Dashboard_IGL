@@ -19,31 +19,18 @@ export const PlantManagerPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      
-      {/* 1. Executive Performance Scorecard */}
-      <div className={styles.kpiSection}>
-        <KpiScorecard kpis={kpis} timeframe={timeframe} />
-      </div>
 
-      {/* 2. Throughput Cadence with Draggable Plant Target */}
-      <div>
-        <ThroughputAnalytics chartData={chartData} timeframe={timeframe} />
-      </div>
+      <KpiScorecard kpis={kpis} timeframe={timeframe} />
 
-      {/* 3. Dock Supervisor Shift Accountability */}
-      <div>
+      <ThroughputAnalytics chartData={chartData} timeframe={timeframe} />
+
+      {/* Dock supervisors and carrier SLA share a row on desktop */}
+      <div className={styles.splitGrid}>
         <SupervisorScorecard supervisors={initialSupervisors} />
-      </div>
-
-      {/* 4. Transporter / Carrier Fleet SLA Scorecard */}
-      <div>
         <CarrierScorecard />
       </div>
 
-      {/* 5. AI Incidents, Bulk Review & Removal Audit */}
-      <div>
-        <IncidentsLossPrevention onInspectIncident={setInspectedIncident} />
-      </div>
+      <IncidentsLossPrevention onInspectIncident={setInspectedIncident} />
 
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Truck, Award, Loader2, AlertTriangle, Inbox } from 'lucide-react';
+import { Truck, Loader2, AlertTriangle, Inbox } from 'lucide-react';
+import { StatusBadge } from './StatusBadge';
 import styles from './CarrierScorecard.module.css';
 
 export interface CarrierItem {
@@ -65,25 +66,22 @@ export const CarrierScorecard: React.FC<CarrierScorecardProps> = ({
   errorMessage = 'Failed to load transporter performance records'
 }) => {
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       
       {/* Title */}
       <div className={styles.header}>
         <div>
           <div className={styles.titleGroup}>
-            <Truck size={20} color="#38bdf8" />
+            <Truck size={18} color="var(--accent)" />
             <h3 className={styles.title}>
-              Transporter & Carrier Fleet SLA Scorecard
+              Carrier SLA Scorecard
             </h3>
           </div>
-          <p className={styles.subtitle}>
-            Turnaround duration and on-time staging performance by third-party transport agencies
-          </p>
         </div>
 
-        <span className="badge badge-cyan">
-          {carriers.length} REGISTERED TRANSPORTERS
-        </span>
+        <StatusBadge kind="info" icon={Truck}>
+          {carriers.length} registered transporters
+        </StatusBadge>
       </div>
 
       {/* Table */}
@@ -114,7 +112,7 @@ export const CarrierScorecard: React.FC<CarrierScorecardProps> = ({
             {!isLoading && isError && (
               <tr>
                 <td colSpan={6} className={styles.tableStateCell}>
-                  <div className={styles.stateBox} style={{ color: '#fb7185' }}>
+                  <div className={styles.stateBox} style={{ color: 'var(--critical-text)' }}>
                     <AlertTriangle size={24} />
                     <span>{errorMessage}</span>
                   </div>
@@ -165,19 +163,19 @@ export const CarrierScorecard: React.FC<CarrierScorecardProps> = ({
                 </td>
                 <td className={`${styles.td} ${styles.tierCell}`}>
                   {carrier.status === 'preferred' && (
-                    <span className={`badge badge-emerald ${styles.tierBadge}`}>
-                      <Award size={11} /> PREFERRED
-                    </span>
+                    <StatusBadge kind="preferred" className={styles.tierBadge}>
+                      Preferred
+                    </StatusBadge>
                   )}
                   {carrier.status === 'standard' && (
-                    <span className={`badge badge-slate ${styles.tierBadge}`}>
-                      STANDARD
-                    </span>
+                    <StatusBadge kind="standard" className={styles.tierBadge}>
+                      Standard
+                    </StatusBadge>
                   )}
                   {carrier.status === 'review' && (
-                    <span className={`badge badge-amber ${styles.tierBadge}`}>
-                      SLA DELAY
-                    </span>
+                    <StatusBadge kind="review" className={styles.tierBadge}>
+                      SLA delay
+                    </StatusBadge>
                   )}
                 </td>
               </tr>

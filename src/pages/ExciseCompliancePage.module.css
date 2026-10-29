@@ -1,108 +1,108 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: var(--space-3);
 }
 
 .topBanner {
-  padding: 20px 24px;
+  padding: var(--space-3);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-3);
 }
 
 .bannerLeft {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .bannerTitle {
-  font-size: 1.2rem;
+  font-size: 1.0625rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .bannerSub {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .bannerStats {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
 .complianceGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
+  gap: var(--space-3);
 }
 
 .removalsCard {
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-3);
 }
 
 .removalsHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .removalsTitle {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .removalsSubtitle {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .removalsList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 440px;
+  gap: var(--space-2);
+  max-height: 380px;
   overflow-y: auto;
 }
 
 .removalItem {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 14px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(244, 63, 94, 0.2);
+  background: var(--surface-alt);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-2);
 }
 
 .removalMeta {
   font-size: 0.75rem;
-  color: var(--accent-sky);
-  margin-top: 4px;
+  color: var(--accent-text);
+  margin-top: var(--space-1);
 }
 
 /* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .container {
-    gap: 28px;
+    gap: var(--space-4);
   }
 }
 
@@ -117,7 +117,7 @@
 @media (max-width: 768px) {
   .container {
     padding-bottom: 70px;
-    gap: 16px;
+    gap: var(--space-4);
   }
 
   .topBanner {
@@ -135,4 +135,3 @@
     align-items: flex-start;
   }
 }
-

@@ -1,33 +1,37 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Tv, Factory, SlidersHorizontal, ShieldCheck } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Factory, UserCheck, SlidersHorizontal, ShieldCheck } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
 export const BottomNav: React.FC = () => {
+  const location = useLocation();
+  const isBaysRoute = location.pathname.startsWith('/bay/');
+
   return (
     <nav className={styles.bottomNav} aria-label="Mobile Navigation">
       <NavLink 
         to="/wall" 
         className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
       >
-        <Tv size={18} />
-        <span>Wall</span>
+        <Factory size={18} />
+        <span>Manager</span>
       </NavLink>
 
       <NavLink 
         to="/plant" 
         className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
       >
-        <Factory size={18} />
-        <span>Plant</span>
+        <UserCheck size={18} />
+        <span>Supervisor</span>
       </NavLink>
 
       <NavLink 
         to="/bay/1" 
-        className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+        className={`${styles.navItem} ${isBaysRoute ? styles.navItemActive : ''}`}
+        aria-current={isBaysRoute ? 'page' : undefined}
       >
         <SlidersHorizontal size={18} />
-        <span>Bay 1</span>
+        <span>Bays</span>
       </NavLink>
 
       <NavLink 

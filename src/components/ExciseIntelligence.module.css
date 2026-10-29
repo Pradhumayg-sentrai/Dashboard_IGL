@@ -1,8 +1,8 @@
 .card {
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-3);
 }
 
 .header {
@@ -10,31 +10,32 @@
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .titleGroup {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .title {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .subtitle {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .paretoHeader {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
   font-size: 0.75rem;
   color: var(--text-muted);
 }
@@ -42,78 +43,248 @@
 .paretoList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
 }
 
 .paretoRow {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  margin: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.paretoRow:hover {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+.paretoRow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .paretoTop {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+}
+
+.rowRight {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.chevron {
+  color: var(--text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.paretoRow:hover .chevron {
+  color: var(--accent);
+  transform: translateX(2px);
 }
 
 .reasonText {
-  color: var(--text-primary);
+  color: var(--text);
   font-weight: 500;
 }
 
 .countText {
   font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .paretoTrack {
+  display: block;
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 3px;
+  height: 4px;
+  background: var(--surface-alt);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .paretoFill {
+  display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--radius-full);
 }
 
 .chuteBox {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 14px 16px;
+  background: var(--surface-alt);
+  padding: var(--space-3);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border);
 }
 
 .chuteTitle {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-2);
 }
 
 .chuteGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .chuteAction {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .actionPct {
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .actionDesc {
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--overlay);
+}
+
+.modal {
+  width: 100%;
+  max-width: 940px;
+  max-height: 88vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-raised);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modalTitleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.modalTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modalSubtitle {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.modalClose {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBody {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: auto;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.caseTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.caseTable th {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.caseTable td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+}
+
+.caseTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.caseTable tbody tr:hover {
+  background: var(--surface-alt);
+}
+
+.barcodeCell {
+  max-width: 180px;
+  word-break: break-all;
+}
+
+.portalCell {
+  min-width: 220px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.sampleNote {
+  font-size: 0.6875rem;
   color: var(--text-muted);
 }
 
@@ -122,15 +293,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 36px 16px;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
   color: var(--text-muted);
   text-align: center;
 }
 
 .spinner {
   animation: spin 1.2s linear infinite;
-  color: var(--accent-sky);
+  color: var(--accent);
 }
 
 @keyframes spin {
@@ -141,20 +312,20 @@
 /* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .card {
-    padding: 30px;
-    gap: 24px;
+    padding: var(--space-4);
+    gap: var(--space-4);
   }
 
   .title {
-    font-size: 1.35rem;
+    font-size: 1.125rem;
   }
 
   .paretoTop {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
 
   .actionPct {
-    font-size: 1.15rem;
+    font-size: 1.125rem;
   }
 }
 
@@ -168,8 +339,8 @@
 /* 768px Handhelds */
 @media (max-width: 768px) {
   .card {
-    padding: 16px;
-    gap: 16px;
+    padding: var(--space-3);
+    gap: var(--space-3);
   }
 
   .header {
@@ -179,7 +350,25 @@
 
   .chuteGrid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: var(--space-2);
+  }
+
+  .modalBackdrop {
+    padding: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .modal {
+    max-height: 92vh;
+  }
+
+  .modalHeader,
+  .modalBody {
+    padding: var(--space-3);
+  }
+
+  .caseTable th,
+  .caseTable td {
+    padding: var(--space-2) var(--space-1);
   }
 }
-

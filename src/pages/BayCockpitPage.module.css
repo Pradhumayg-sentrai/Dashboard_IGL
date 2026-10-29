@@ -1,162 +1,279 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-3);
 }
 
 .bayNavCard {
-  padding: 14px 20px;
+  padding: var(--space-2) var(--space-3);
   display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bayNavTop {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-2);
 }
 
-.tabsGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tabLabel {
-  font-size: 0.8rem;
+.bayNavTitle {
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fleetLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-text);
+  text-decoration: none;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+
+.fleetLink:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.tabsGrid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: var(--space-2);
 }
 
 .tabBtn {
-  padding: 6px 14px;
+  min-width: 0;
+  padding: 5px var(--space-2);
+  min-height: 38px;
   border-radius: var(--radius-md);
-  font-size: 0.82rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   text-decoration: none;
 }
 
 .tabBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-primary);
+  background: var(--surface-alt);
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 .tabBtnActive {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: var(--accent-sky);
-  color: var(--accent-sky);
-  box-shadow: 0 0 14px -2px rgba(56, 189, 248, 0.3);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+
+.tabMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.tabStatusIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.tabStatusLoading {
+  color: var(--ok);
+}
+
+.tabStatusStopped {
+  color: var(--critical);
+}
+
+.tabStatusPreparing {
+  color: var(--warn);
+}
+
+.tabStatusStandby {
+  color: var(--text-muted);
+}
+
+.tabDock {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.tabBtnActive .tabDock {
+  color: var(--accent-text);
+  opacity: 0.8;
 }
 
 .bayGridSection {
   display: grid;
   grid-template-columns: 1.35fr 1fr;
-  gap: 20px;
+  gap: var(--space-3);
 }
 
 .incidentsPanel {
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-3);
 }
 
 .incidentsHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .incidentsTitle {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .incidentsSubtitle {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .incidentList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 420px;
-  overflow-y: auto;
+  gap: var(--space-2);
+  min-height: 0;
 }
 
 .incidentItem {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border-subtle);
+  background: var(--surface-alt);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .incidentLeft {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.incidentMetaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.incidentActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
 }
 
 .incidentType {
-  font-size: 0.82rem;
+  font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   text-transform: capitalize;
 }
 
 .incidentTime {
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .incidentDetails {
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .incidentBarcode {
-  font-size: 0.7rem;
-  color: var(--accent-sky);
+  font-size: 0.6875rem;
+  color: var(--accent-text);
   margin-top: 2px;
+  font-family: var(--font-mono);
 }
 
-.actionBtn {
-  font-size: 0.72rem;
-  padding: 4px 10px;
-  color: var(--accent-sky);
+.incidentsEmpty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--ok-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.incidentItem .actionBtn {
+  font-size: 0.75rem;
+  padding: 0 var(--space-2);
+  min-height: 26px;
+  color: var(--accent-text);
+  border-color: var(--accent-border);
+  background: var(--surface);
+}
+
+.incidentItem .actionBtnReview {
+  color: var(--ok-text);
+  border-color: var(--ok-border);
+}
+
+.incidentItem .actionBtnReview:hover:not(:disabled) {
+  background: var(--ok-bg);
 }
 
 /* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .container {
-    gap: 24px;
+    gap: var(--space-4);
   }
 
   .bayGridSection {
     grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+/* Mid-size desktops: keep all ten docks visible in two rows */
+@media (max-width: 1279px) {
+  .tabsGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -168,7 +285,7 @@
 
   .tabBtn {
     min-height: 44px;
-    padding: 8px 16px;
+    padding: 5px var(--space-2);
   }
 
   .actionBtn {
@@ -184,21 +301,31 @@
     padding-bottom: 70px;
   }
 
-  .bayNavCard {
-    flex-direction: column;
-    align-items: flex-start;
+  .bayNavTop {
+    justify-content: flex-end;
   }
 
-  .tabsGroup {
-    width: 100%;
-    justify-content: space-between;
+  .bayNavTitle {
+    display: none;
+  }
+
+  .tabsGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-1);
   }
 
   .tabBtn {
-    flex: 1;
+    padding: 5px 2px;
+    font-size: 0.6875rem;
+  }
+
+  .tabMain {
     justify-content: center;
-    padding: 8px 4px;
-    font-size: 0.75rem;
+    gap: 2px;
+    white-space: nowrap;
+  }
+
+  .tabDock {
+    display: none;
   }
 }
-

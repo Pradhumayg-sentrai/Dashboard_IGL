@@ -1,12 +1,18 @@
-import React from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { 
   SlidersHorizontal, 
   ShieldAlert, 
+  ShieldCheck,
   Eye, 
-  CheckCircle2, 
-  ArrowLeft 
+  CheckCircle2,
+  LayoutGrid,
+  PlayCircle,
+  PauseCircle,
+  Clock3,
+  CircleDashed
 } from 'lucide-react';
+import type { LiveBayState } from '../data/plantData';
 import { 
   useBays, 
   useToggleBayBelt, 
@@ -15,66 +21,100 @@ import {
 } from '../store/dashboardStore';
 import { reviewIncident } from '../data/actions';
 import { LiveBayMonitor } from '../components/LiveBayMonitor';
+import { StatusBadge } from '../components/StatusBadge';
 import styles from './BayCockpitPage.module.css';
+
+const bayStatusIcon = (status: LiveBayState['status']) => {
+  switch (status) {
+    case 'loading':
+      return <PlayCircle size={12} aria-hidden="true" />;
+    case 'stopped':
+      return <PauseCircle size={12} aria-hidden="true" />;
+    case 'preparing':
+      return <Clock3 size={12} aria-hidden="true" />;
+    default:
+      return <CircleDashed size={12} aria-hidden="true" />;
+  }
+};
 
 export const BayCockpitPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const bays = useBays();
   const toggleBayBelt = useToggleBayBelt();
   const incidents = useIncidents();
   const setInspectedIncident = useSetInspectedIncident();
 
-  const parsedId = Number(id) || 1;
+  const parsedId = Number(id);
   const currentBay = bays.find(b => b.bayId === parsedId) || bays[0];
+  const isValidBay = bays.some(b => b.bayId === parsedId);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
 
-  // Incidents relevant to this dock or general AI alerts
-  const bayIncidents = incidents.filter(i => {
-    if (parsedId === 1) {
-      // Bay 1 has truck UP58AT9207 and recent barcodes
-      return true;
-    }
-    return i.status === 'open';
-  });
+  // Keep the active dock tab visible when navigating from a 10-bay fleet card.
+  useEffect(() => {
+    const activeTab = tabsRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    activeTab?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [currentBay.bayId]);
+
+  // Incidents are scoped to the bay and open cases always surface first.
+  const bayIncidents = incidents
+    .filter(i => i.bay_id === currentBay.bayId)
+    .sort((a, b) => {
+      const openRank = Number(b.status === 'open') - Number(a.status === 'open');
+      return openRank !== 0 ? openRank : b.occurred_at.localeCompare(a.occurred_at);
+    });
+  const openBayIncidentCount = bayIncidents.filter(i => i.status === 'open').length;
+
+  if (!isValidBay) {
+    return <Navigate to="/bay/1" replace />;
+  }
 
   return (
     <div className={styles.container}>
       
-      {/* 1. Bay Switcher Tabs Header */}
-      <div className={`glass-card ${styles.bayNavCard}`}>
-        <div className={styles.tabsGroup}>
-          <span className={styles.tabLabel}>
-            <SlidersHorizontal size={15} color="#38bdf8" />
-            DOCK SELECTION:
+      {/* 1. Bay Switcher */}
+      <div className={`card ${styles.bayNavCard}`}>
+        <div className={styles.bayNavTop}>
+          <span className={styles.bayNavTitle}>
+            <SlidersHorizontal size={15} color="var(--accent)" />
+            Select dock
           </span>
+          <Link to="/wall" className={styles.fleetLink}>
+            <LayoutGrid size={14} />
+            Fleet wall
+          </Link>
+        </div>
 
+        <div className={styles.tabsGrid} ref={tabsRef}>
           {bays.map(b => {
             const isActive = b.bayId === currentBay.bayId;
+            const statusClass =
+              b.status === 'loading'
+                ? styles.tabStatusLoading
+                : b.status === 'stopped'
+                  ? styles.tabStatusStopped
+                  : b.status === 'preparing'
+                    ? styles.tabStatusPreparing
+                    : styles.tabStatusStandby;
+
             return (
               <Link
                 key={b.bayId}
                 to={`/bay/${b.bayId}`}
                 className={`${styles.tabBtn} ${isActive ? styles.tabBtnActive : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                aria-label={`${b.bayName}, ${b.dockLocation}, ${b.status}`}
               >
-                <span className={`pulse-dot ${b.status === 'loading' ? 'online' : b.status === 'stopped' ? 'warning' : ''}`} style={{ width: '6px', height: '6px' }}></span>
-                <span>{b.bayName}</span>
-                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>
-                  ({b.dockLocation})
+                <span className={styles.tabMain}>
+                  <span className={`${styles.tabStatusIcon} ${statusClass}`}>
+                    {bayStatusIcon(b.status)}
+                  </span>
+                  <span>{b.bayName}</span>
                 </span>
+                <span className={styles.tabDock}>{b.dockLocation.replace(/ Dock$/, '')}</span>
               </Link>
             );
           })}
         </div>
-
-        <button 
-          onClick={() => navigate('/wall')}
-          className="btn-action btn-ghost"
-          style={{ fontSize: '0.78rem' }}
-          title="Return to multi-bay fleet view"
-        >
-          <ArrowLeft size={14} />
-          <span>Full Fleet Wall</span>
-        </button>
       </div>
 
       {/* 2. Cockpit Monitor & Dock Surveillance Incidents */}
@@ -83,45 +123,54 @@ export const BayCockpitPage: React.FC = () => {
           <LiveBayMonitor 
             liveBay={currentBay}
             onToggleBelt={() => toggleBayBelt(currentBay.bayId)}
-            onBackToAllBays={() => navigate('/wall')}
           />
         </div>
 
         {/* Dedicated Bay Surveillance & Incident Audit */}
-        <div className={`glass-card ${styles.incidentsPanel}`}>
+        <div className={`card ${styles.incidentsPanel}`}>
           <div className={styles.incidentsHeader}>
             <div>
               <div className={styles.incidentsTitle}>
-                <ShieldAlert size={18} color="#f43f5e" />
-                <span>{currentBay.bayName} Computer Vision Alerts</span>
+                <ShieldAlert size={18} color="var(--critical)" />
+                <span>{currentBay.bayName} Vision Alerts</span>
               </div>
               <p className={styles.incidentsSubtitle}>
-                In-truck camera stream (`cam_in`) anomalies for {currentBay.truckReg || 'Dock Lane'}
+                In-truck <span className="font-mono">cam_in</span> anomalies for {currentBay.truckReg || 'Dock Lane'}
               </p>
             </div>
 
-            <span className="badge badge-rose">
-              {bayIncidents.filter(i => i.status === 'open').length} Open
-            </span>
+            <StatusBadge kind={openBayIncidentCount > 0 ? 'open' : 'ok'}>
+              {openBayIncidentCount} open
+            </StatusBadge>
           </div>
 
           <div className={styles.incidentList}>
+            {bayIncidents.length === 0 && (
+              <div className={styles.incidentsEmpty}>
+                <ShieldCheck size={20} />
+                <span>No AI anomalies recorded for {currentBay.bayName}.</span>
+              </div>
+            )}
             {bayIncidents.map(item => (
               <div key={item.id} className={styles.incidentItem}>
                 <div className={styles.incidentLeft}>
                   <div>
-                    {item.severity === 'critical' || item.severity === 'high' ? (
-                      <span className="badge badge-rose">
-                        {item.severity === 'critical' ? 'CRIT' : 'HIGH'}
-                      </span>
-                    ) : item.severity === 'medium' ? (
-                      <span className="badge badge-amber">MED</span>
-                    ) : (
-                      <span className="badge badge-slate">LOW</span>
-                    )}
+                    <StatusBadge
+                      kind={
+                        item.severity === 'critical'
+                          ? 'critical'
+                          : item.severity === 'high'
+                            ? 'high'
+                            : item.severity === 'medium'
+                              ? 'warning'
+                              : 'low'
+                      }
+                    >
+                      {item.severity}
+                    </StatusBadge>
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className={styles.incidentMetaRow}>
                       <span className={styles.incidentType}>
                         {item.type.replace('_', ' ')}
                       </span>
@@ -140,7 +189,8 @@ export const BayCockpitPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div className={styles.incidentActions}>
+                  <StatusBadge kind={item.status}>{item.status}</StatusBadge>
                   <button 
                     onClick={() => setInspectedIncident(item)}
                     className={`btn-action btn-ghost ${styles.actionBtn}`}
@@ -155,11 +205,12 @@ export const BayCockpitPage: React.FC = () => {
                           console.error('Failed to review incident:', err);
                         });
                       }}
-                      className={`btn-action btn-ghost ${styles.actionBtn}`}
-                      style={{ color: '#34d399' }}
+                      className={`btn-action btn-ghost ${styles.actionBtn} ${styles.actionBtnReview}`}
                       title="Mark as reviewed"
+                      aria-label="Mark incident as reviewed"
                     >
                       <CheckCircle2 size={12} />
+                      Review
                     </button>
                   )}
                 </div>

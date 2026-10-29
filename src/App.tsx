@@ -11,12 +11,13 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/plant" replace />} />
+          <Route path="/" element={<Navigate to="/wall" replace />} />
           <Route path="/wall" element={<WallDisplayPage />} />
+          <Route path="/bay" element={<Navigate to="/bay/1" replace />} />
           <Route path="/bay/:id" element={<BayCockpitPage />} />
           <Route path="/plant" element={<PlantManagerPage />} />
           <Route path="/excise" element={<ExciseCompliancePage />} />
-          <Route path="*" element={<Navigate to="/plant" replace />} />
+          <Route path="*" element={<Navigate to="/wall" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

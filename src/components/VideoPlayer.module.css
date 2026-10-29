@@ -5,9 +5,7 @@
   min-height: 220px;
   overflow: hidden;
   border-radius: inherit;
-  background:
-    radial-gradient(ellipse at 50% 40%, rgba(56, 189, 248, 0.08), transparent 65%),
-    #090d16;
+  background: var(--video-bg);
 }
 
 .video {
@@ -16,7 +14,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #090d16;
+  background: var(--video-bg);
 }
 
 .overlayCanvas {
@@ -36,40 +34,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: #64748b;
-  font-size: 0.78rem;
+  gap: var(--space-2);
+  color: var(--video-text-muted);
+  font-size: 0.8125rem;
   text-align: center;
-  padding: 16px;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(148, 163, 184, 0.03) 0,
-      rgba(148, 163, 184, 0.03) 1px,
-      transparent 1px,
-      transparent 4px
-    ),
-    radial-gradient(ellipse at center, rgba(30, 41, 59, 0.55), rgba(5, 9, 17, 0.95));
+  padding: var(--space-4);
+  background: var(--video-bg);
 }
 
 .fallback small {
-  color: #475569;
+  color: var(--video-text-muted);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.6875rem;
 }
 
 .detectionCount {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: var(--space-2);
+  right: var(--space-2);
   z-index: 3;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.62);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  color: #7dd3fc;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--video-overlay);
+  border: 1px solid var(--video-border);
+  color: var(--video-text);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   pointer-events: none;

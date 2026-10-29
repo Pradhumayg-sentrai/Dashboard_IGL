@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Radio, RefreshCw, WifiOff } from 'lucide-react';
 import { useConnectionStatus, useLastUpdateTimestamp } from '../store/dashboardStore';
 import styles from './ConnectionStatus.module.css';
 
@@ -29,14 +30,14 @@ export const ConnectionStatus: React.FC = () => {
     }
   };
 
-  const getStatusDotClass = () => {
+  const getStatusIcon = () => {
     switch (status) {
       case 'live':
-        return 'online';
+        return <Radio size={13} aria-hidden="true" />;
       case 'reconnecting':
-        return 'warning';
+        return <RefreshCw size={13} className={styles.spin} aria-hidden="true" />;
       case 'offline':
-        return '';
+        return <WifiOff size={13} aria-hidden="true" />;
     }
   };
 
@@ -53,14 +54,7 @@ export const ConnectionStatus: React.FC = () => {
       title={`Connection: ${status.toUpperCase()} • Telemetry Age: ${ageSeconds}s`}
       aria-label={`Connection status: ${status}, updated ${formatAge()}`}
     >
-      <span 
-        className={`pulse-dot ${getStatusDotClass()}`} 
-        style={{ 
-          width: '7px', 
-          height: '7px',
-          ...(status === 'offline' ? { backgroundColor: 'var(--accent-rose)' } : {})
-        }}
-      ></span>
+      {getStatusIcon()}
       <span className={styles.label}>
         {status === 'live' && 'Live'}
         {status === 'reconnecting' && 'Reconnecting'}
@@ -72,4 +66,3 @@ export const ConnectionStatus: React.FC = () => {
     </div>
   );
 };
-

@@ -1,32 +1,34 @@
 .statusPill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  min-height: 28px;
   border-radius: var(--radius-md);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-subtle);
-  transition: all 0.25s ease;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .statusLive {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.3);
-  color: #34d399;
+  background: var(--ok-bg);
+  border-color: var(--ok-border);
+  color: var(--ok-text);
 }
 
 .statusReconnecting {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #fbbf24;
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+  color: var(--warn-text);
 }
 
 .statusOffline {
-  background: rgba(244, 63, 94, 0.1);
-  border-color: rgba(244, 63, 94, 0.35);
-  color: #fb7185;
+  background: var(--critical-bg);
+  border-color: var(--critical-border);
+  color: var(--critical-text);
 }
 
 .label {
@@ -36,16 +38,25 @@
 }
 
 .age {
-  font-size: 0.72rem;
+  font-size: 0.6875rem;
   font-family: var(--font-mono);
-  opacity: 0.85;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.spin {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* 1024px Tablets */
 @media (max-width: 1024px) {
   .statusPill {
     min-height: 44px;
-    padding: 8px 14px;
+    padding: var(--space-2) var(--space-3);
   }
 }
-

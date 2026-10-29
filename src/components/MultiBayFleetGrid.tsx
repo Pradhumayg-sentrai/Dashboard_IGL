@@ -3,12 +3,11 @@ import type { LiveBayState } from '../data/plantData';
 import { 
   Truck, 
   UserCheck, 
-  Clock, 
   ExternalLink, 
   Phone, 
-  SlidersHorizontal,
-  AlertTriangle 
+  SlidersHorizontal
 } from 'lucide-react';
+import { StatusBadge } from './StatusBadge';
 import styles from './MultiBayFleetGrid.module.css';
 
 interface MultiBayFleetGridProps {
@@ -33,56 +32,65 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
   const activeCount = bays.filter(b => b.status === 'loading').length;
   const stoppedCount = bays.filter(b => b.status === 'stopped').length;
   const preparingCount = bays.filter(b => b.status === 'preparing').length;
+  const standbyCount = bays.filter(b => b.status === 'standby').length;
   const totalFleetPace = bays.reduce((acc, b) => acc + (b.beltState === 'running' ? b.paceCpm : 0), 0);
 
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       
       {/* Top Banner with Fleet Summary */}
       <div className={styles.banner}>
         <div>
           <div className={styles.titleRow}>
-            <SlidersHorizontal size={20} color="#38bdf8" />
+            <SlidersHorizontal size={18} color="var(--accent)" />
             <h2 className={styles.title}>
-              Multi-Bay Concurrent Fleet Operations
+              Multi-Bay Fleet Operations
             </h2>
-            <span className="badge badge-cyan">
-              4 CONCURRENT BAYS
-            </span>
           </div>
-          <p className={styles.subtitle}>
-            Live status of physical loading bays, active vehicles, and on-duty dock supervisors
-          </p>
         </div>
 
         {/* Fleet Metrics Pills */}
         <div className={styles.fleetMetrics}>
-          <span className={`badge badge-emerald ${styles.statusBadge}`}>
-            <span className="pulse-dot online"></span>
-            {activeCount} Loading
-          </span>
-          {stoppedCount > 0 && (
-            <span className={`badge badge-rose ${styles.statusBadge}`}>
-              <span className="pulse-dot warning"></span>
-              {stoppedCount} Stoppage
-            </span>
+          {activeCount > 0 && (
+            <StatusBadge kind="loading" className={styles.statusBadge}>
+              {activeCount} Loading
+            </StatusBadge>
           )}
-          <span className={`badge badge-slate ${styles.statusBadge}`}>
-            {preparingCount} Staging
-          </span>
+          {stoppedCount > 0 && (
+            <StatusBadge kind="stopped" className={styles.statusBadge}>
+              {stoppedCount} Stoppage
+            </StatusBadge>
+          )}
+          {preparingCount > 0 && (
+            <StatusBadge kind="preparing" className={styles.statusBadge}>
+              {preparingCount} Staging
+            </StatusBadge>
+          )}
+          {standbyCount > 0 && (
+            <StatusBadge kind="standby" className={styles.statusBadge}>
+              {standbyCount} Standby
+            </StatusBadge>
+          )}
           <div className={styles.combinedPace}>
-            Combined Pace: <strong className={styles.paceHighlight}>{totalFleetPace.toFixed(1)} c/min</strong> ({(totalFleetPace * 60).toLocaleString()} / hr)
+            <span>Combined Pace:</span>{' '}
+            <strong className={styles.paceHighlight}>
+              {Math.round(totalFleetPace * 60).toLocaleString()}
+            </strong>{' '}
+            <span>cartons/hr</span>
           </div>
         </div>
       </div>
 
-      {/* 4 Concurrent Bays Grid */}
+      {/* Concurrent Bays Grid */}
       <div className={styles.baysGrid}>
         {bays.map(bay => {
           const isSelected = selectedBayId === bay.bayId;
           const pct = Math.min(100, (bay.loadedQty / bay.allocatedQty) * 100);
           const staleAgeMs = now - (bay.lastUpdated || 0);
-          const isStale = staleAgeMs > 10000;
+          const isStale =
+            bay.status === 'loading' &&
+            bay.beltState === 'running' &&
+            staleAgeMs > 10000;
           const staleSeconds = Math.floor(staleAgeMs / 1000);
 
           return (
@@ -101,53 +109,43 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
                       • {bay.dockLocation}
                     </span>
                   </div>
-                  <div className={styles.baySub}>
-                    {bay.status === 'loading' && 'Active Conveyor & POS Bridge'}
-                    {bay.status === 'stopped' && <strong className={styles.stopCause}>{bay.stopCause}</strong>}
-                    {bay.status === 'preparing' && 'Handset Syncing Pass'}
-                    {bay.status === 'standby' && 'Awaiting Dispatch Slip'}
-                  </div>
+                  {bay.status === 'stopped' && (
+                    <div className={styles.baySub}>
+                      <strong className={styles.stopCause}>{bay.stopCause}</strong>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   {isStale && (
-                    <span 
-                      className={`badge badge-amber ${styles.staleBadge}`}
+                    <StatusBadge
+                      kind="stale"
+                      className={styles.staleBadge}
                       title={`Telemetry feed paused for ${staleSeconds}s (>10s threshold)`}
                     >
-                      <AlertTriangle size={11} />
-                      DATA STALE ({staleSeconds}s)
-                    </span>
+                      Data stale ({staleSeconds}s)
+                    </StatusBadge>
                   )}
-                  {bay.status === 'loading' && (
-                    <span className="badge badge-emerald">
-                      <span className="pulse-dot online"></span>
-                      LOADING
-                    </span>
-                  )}
-                  {bay.status === 'stopped' && (
-                    <span className="badge badge-rose">
-                      <span className="pulse-dot warning"></span>
-                      STOPPED
-                    </span>
-                  )}
-                  {bay.status === 'preparing' && (
-                    <span className="badge badge-cyan">
-                      PREPARING
-                    </span>
-                  )}
-                  {bay.status === 'standby' && (
-                    <span className="badge badge-slate">
-                      STANDBY
-                    </span>
-                  )}
+                  <StatusBadge
+                    kind={
+                      bay.status === 'loading'
+                        ? 'loading'
+                        : bay.status === 'stopped'
+                          ? 'stopped'
+                          : bay.status === 'preparing'
+                            ? 'preparing'
+                            : 'standby'
+                    }
+                  >
+                    {bay.status}
+                  </StatusBadge>
                 </div>
               </div>
 
               {/* Target Vehicle & Slip */}
               <div className={styles.vehicleBox}>
                 <div className={styles.vehicleLeft}>
-                  <Truck size={16} color="#38bdf8" />
+                  <Truck size={16} color="var(--accent)" />
                   <div>
                     <div className={styles.infoLabel}>Vehicle</div>
                     <div className={`font-mono ${styles.vehicleReg}`}>
@@ -170,8 +168,13 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
                   <span className={styles.progressLabel}>
                     Progress: <strong className={styles.progressStrong}>{bay.loadedQty} / {bay.allocatedQty} cases</strong>
                   </span>
-                  <span className={`font-mono ${styles.progressPct}`}>
-                    {pct.toFixed(1)}%
+                  <span className={styles.progressRight}>
+                    {bay.status === 'loading' && (
+                      <span className={styles.etaInline}>~{bay.estimatedRemainingMinutes}m</span>
+                    )}
+                    <span className={`font-mono ${styles.progressPct}`}>
+                      {pct.toFixed(1)}%
+                    </span>
                   </span>
                 </div>
                 <div className={styles.progressTrack}>
@@ -180,12 +183,6 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
                     style={{ width: `${pct}%` }}
                   ></div>
                 </div>
-                {bay.status === 'loading' && (
-                  <div className={styles.etaRow}>
-                    <Clock size={11} />
-                    <span>~{bay.estimatedRemainingMinutes} mins remaining to seal</span>
-                  </div>
-                )}
               </div>
 
               {/* Assigned Supervisor Pill */}
@@ -199,7 +196,7 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({
                   </div>
                   <div>
                     <div className={styles.supervisorName}>
-                      <UserCheck size={12} color="#34d399" />
+                      <UserCheck size={12} color="var(--ok)" />
                       {bay.supervisor.name}
                     </div>
                     <div className={styles.supervisorSub}>

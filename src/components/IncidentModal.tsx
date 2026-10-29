@@ -16,15 +16,16 @@ import {
   Loader2,
 } from 'lucide-react';
 import { VideoPlayer } from './VideoPlayer';
+import { StatusBadge } from './StatusBadge';
 import styles from './IncidentModal.module.css';
 
 const MOCK_INCIDENT_VIDEO_SRC = `${import.meta.env.BASE_URL}mock-cctv.mp4`;
 
 const SEVERITY_COLORS: Record<IncidentItem['severity'], string> = {
-  critical: '#fb7185',
-  high: '#f43f5e',
-  medium: '#fbbf24',
-  low: '#94a3b8',
+  critical: 'var(--critical)',
+  high: 'var(--critical)',
+  medium: 'var(--warn)',
+  low: 'var(--text-muted)',
 };
 
 function formatIncidentType(type: string): string {
@@ -48,14 +49,14 @@ function buildMockDetections(incident: IncidentItem): VideoDetection[] {
       label: 'CARTON',
       confidence: 0.87,
       bbox: { x: primaryX + 0.24, y: 0.36, width: 0.18, height: 0.27 },
-      color: '#38bdf8',
+      color: 'var(--accent)',
     },
     {
       id: `incident-${incident.id}-zone`,
       label: 'STACK ZONE',
       confidence: 1,
       bbox: { x: 0.15, y: 0.18, width: 0.68, height: 0.55 },
-      color: '#10b981',
+      color: 'var(--ok)',
       dashed: true,
     },
   ];
@@ -259,7 +260,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
   return (
     <div className={styles.backdrop}>
       <div
-        className={`glass-card ${styles.modal}`}
+        className={`card ${styles.modal}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="incident-modal-title"
@@ -334,25 +335,27 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
           <div className={styles.telemetryGrid}>
             <div className={styles.telemetryCard}>
               <div className={styles.telemetryLabel}>
-                <Activity size={12} color="#fb7185" />
+                <Activity size={12} color="var(--critical)" />
                 Detection Severity
               </div>
-              <div
-                className={`${styles.severityVal} ${
-                  incident.severity === 'critical' || incident.severity === 'high'
-                    ? styles.severityHigh
-                    : incident.severity === 'medium'
-                      ? styles.severityMed
-                      : styles.severityLow
-                }`}
-              >
-                {incident.severity}
+              <div className={styles.severityVal}>
+                <StatusBadge
+                  kind={
+                    incident.severity === 'critical' || incident.severity === 'high'
+                      ? 'critical'
+                      : incident.severity === 'medium'
+                        ? 'warning'
+                        : 'low'
+                  }
+                >
+                  {incident.severity}
+                </StatusBadge>
               </div>
             </div>
 
             <div className={styles.telemetryCard}>
               <div className={styles.telemetryLabel}>
-                <Barcode size={12} color="#38bdf8" />
+                <Barcode size={12} color="var(--accent)" />
                 Associated Barcode
               </div>
               <div className={`font-mono ${styles.barcodeVal}`}>
@@ -362,7 +365,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
 
             <div className={styles.telemetryCard}>
               <div className={styles.telemetryLabel}>
-                <Cpu size={12} color="#34d399" />
+                <Cpu size={12} color="var(--ok)" />
                 Lane / Vehicle
               </div>
               <div className={`font-mono ${styles.processIdVal}`}>
@@ -435,7 +438,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
                 </button>
                 <button
                   type="button"
-                  className={`btn-action ${styles.confirmDismissBtn}`}
+                  className={`btn btn-danger ${styles.confirmDismissBtn}`}
                   onClick={() => void handleDismiss()}
                   disabled={!dismissReason.trim() || isSubmitting}
                 >
@@ -465,17 +468,9 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
           <div className={styles.footerMeta}>
             <span className={styles.statusLabel}>
               Status:{' '}
-              <strong
-                className={
-                  incident.status === 'open'
-                    ? styles.statusOpen
-                    : incident.status === 'reviewed'
-                      ? styles.statusReviewed
-                      : styles.statusDismissed
-                }
-              >
-                {incident.status.toUpperCase()}
-              </strong>
+              <StatusBadge kind={incident.status}>
+                {incident.status}
+              </StatusBadge>
             </span>
             <span className={styles.shortcutHint}>
               <Keyboard size={12} />
@@ -502,7 +497,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
                 <button
                   type="button"
                   onClick={() => void handleReview()}
-                  className={`btn-action ${styles.acknowledgeBtn}`}
+                  className={`btn btn-primary ${styles.acknowledgeBtn}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

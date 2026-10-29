@@ -156,7 +156,7 @@ export interface Removal {
 }
 
 export interface RemovalCreateRequest {
-  session_id: number;
+  session_id?: number | null;
   scan_id?: number | null;
   barcode_value?: string | null;
   reason: string;
@@ -236,35 +236,35 @@ export interface ValidationError {
 
 export interface ApiOperations {
   "GET /api/audit": {
-  response: Array<AuditEntry>;
-};
+    response: Array<AuditEntry>;
+  };
   "GET /api/audit/verify": {
-  response: AuditVerifyResponse;
-};
+    response: AuditVerifyResponse;
+  };
   "GET /api/health": {
-  response: HealthResponse;
-};
+    response: HealthResponse;
+  };
   "GET /api/incidents": {
-  response: Array<Incident>;
-};
+    response: Array<Incident>;
+  };
   "GET /api/incidents/{incident_id}": {
-  response: Incident;
-};
+    response: Incident;
+  };
   "POST /api/incidents/{incident_id}/review": {
-  request: IncidentReviewRequest;
-  response: IncidentReviewResponse;
-};
+    request: IncidentReviewRequest;
+    response: IncidentReviewResponse;
+  };
   "GET /api/removals": {
-  response: Array<Removal>;
-};
+    response: Array<Removal>;
+  };
   "POST /api/removals": {
-  request: RemovalCreateRequest;
-  response: RemovalCreateResponse;
-};
+    request: RemovalCreateRequest;
+    response: RemovalCreateResponse;
+  };
   "GET /api/reports/dispatch.csv": {
-  response: string;
-};
+    response: string;
+  };
   "GET /api/snapshot": {
-  response: Snapshot;
-};
+    response: Snapshot;
+  };
 }

@@ -11,6 +11,7 @@ import {
   Loader2,
   Inbox
 } from 'lucide-react';
+import { StatusBadge } from './StatusBadge';
 import styles from './SupervisorScorecard.module.css';
 
 interface SupervisorScorecardProps {
@@ -27,26 +28,25 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
   errorMessage = 'Failed to load supervisor shift roster',
 }) => {
   return (
-    <div className={`glass-card ${styles.card}`}>
+    <div className={`card ${styles.card}`}>
       
       {/* Title */}
       <div className={styles.titleRow}>
         <div>
           <div className={styles.titleLeft}>
-            <Users size={20} color="#38bdf8" />
+            <Users size={18} color="var(--accent)" />
             <h3 className={styles.title}>
-              Supervisor Shift Accountability Scorecard
+              Supervisor Scorecard
             </h3>
           </div>
           <p className={styles.subtitle}>
-            Assigned dock officers on duty for Shift B (14:00 - 22:00) with loading speed & compliance KPIs
+            Shift B • 14:00–22:00
           </p>
         </div>
 
-        <span className="badge badge-emerald">
-          <ShieldCheck size={13} />
-          ALL SUPERVISORS CERTIFIED
-        </span>
+        <StatusBadge kind="verified" icon={ShieldCheck}>
+          All supervisors certified
+        </StatusBadge>
       </div>
 
       {/* Supervisors Table / Card List */}
@@ -59,7 +59,7 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
         )}
 
         {!isLoading && isError && (
-          <div className={styles.stateBox} style={{ color: '#fb7185' }}>
+          <div className={styles.stateBox} style={{ color: 'var(--critical-text)' }}>
             <AlertTriangle size={24} />
             <span>{errorMessage}</span>
           </div>
@@ -72,7 +72,7 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
           </div>
         )}
 
-        {!isLoading && !isError && supervisors.map((sup, idx) => (
+        {!isLoading && !isError && supervisors.map(sup => (
           <div 
             key={sup.userId}
             className={styles.supervisorCard}
@@ -82,10 +82,7 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
               <div className={styles.supervisorIdentity}>
                 <div 
                   className={styles.avatar}
-                  style={{ 
-                    backgroundColor: sup.avatarColor,
-                    boxShadow: `0 0 12px ${sup.avatarColor}55`
-                  }}
+                  style={{ backgroundColor: sup.avatarColor }}
                 >
                   {sup.name.split(' ').map(n => n[0]).join('')}
                 </div>
@@ -94,7 +91,8 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
                     {sup.name}
                   </div>
                   <div className={styles.idRow}>
-                    ID: <strong className={styles.employeeIdStrong}>{sup.employeeId}</strong> • Assigned: <strong className={styles.bayStrong}>Bay {idx + 1}</strong>
+                    ID: <strong className={styles.employeeIdStrong}>{sup.employeeId}</strong> • Bays:{' '}
+                    <strong className={styles.bayStrong}>{sup.assignedBayIds.join(', ')}</strong>
                   </div>
                 </div>
               </div>
@@ -137,7 +135,6 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
 
             {/* Contact / Intercom bar */}
             <div className={styles.contactBar}>
-              <span className={styles.shiftText}>{sup.shift}</span>
               <span className={styles.intercomPill}>
                 <Phone size={11} /> Intercom {sup.phoneExt}
               </span>

@@ -8,6 +8,7 @@ import {
   ExternalLink 
 } from 'lucide-react';
 import { useBays, useToggleBayBelt, useIncidents, useSetInspectedIncident } from '../../store/dashboardStore';
+import { StatusBadge } from '../../components/StatusBadge';
 import styles from './ActiveAlarmsPanel.module.css';
 
 export const ActiveAlarmsPanel: React.FC = () => {
@@ -27,25 +28,24 @@ export const ActiveAlarmsPanel: React.FC = () => {
   const totalAlarmsCount = stoppedBays.length + highIncidents.length;
 
   return (
-    <div className={`glass-card ${styles.panel}`}>
+    <div className={`card ${styles.panel}`}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          <AlertOctagon size={20} color="#f43f5e" />
+          <AlertOctagon size={20} color="var(--critical)" />
           <h3 className={styles.title}>
             Live Plant Alarms & Automated Interventions
           </h3>
         </div>
 
-        <span className={`badge ${totalAlarmsCount > 0 ? 'badge-rose' : 'badge-emerald'}`}>
-          <span className={`pulse-dot ${totalAlarmsCount > 0 ? 'warning' : 'online'}`}></span>
-          {totalAlarmsCount} ACTIVE ALARMS
-        </span>
+        <StatusBadge kind={totalAlarmsCount > 0 ? 'critical' : 'ok'}>
+          {totalAlarmsCount} active alarms
+        </StatusBadge>
       </div>
 
       <div className={styles.alarmGrid}>
         {/* Stopped Bay Alarms */}
         {stoppedBays.map(bay => (
-          <div key={`bay-stop-${bay.bayId}`} className={styles.alarmCard}>
+          <div key={`bay-stop-${bay.bayId}`} className={styles.alarmCard} title={`${bay.bayName} (${bay.dockLocation}) - ${bay.stopCause || 'Lane stoppage trigger'}`}>
             <div className={styles.alarmLeft}>
               <AlertTriangle size={20} className={styles.alarmIconRose} />
               <div>
@@ -55,17 +55,13 @@ export const ActiveAlarmsPanel: React.FC = () => {
                 <div className={styles.alarmCause}>
                   Conveyor Halted: {bay.stopCause || 'Lane stoppage trigger'}
                 </div>
-                <div className={styles.alarmMeta}>
-                  Supervisor: {bay.supervisor.name} (Ext {bay.supervisor.phoneExt}) • Progress: {bay.loadedQty}/{bay.allocatedQty} cases
-                </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => toggleBayBelt(bay.bayId)}
-                className={`btn-action btn-ghost ${styles.alarmActionBtn}`}
-                style={{ color: '#34d399' }}
+                className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionResume}`}
                 title="Restart conveyor belt"
                 aria-label={`Restart ${bay.bayName} conveyor belt`}
               >
@@ -73,8 +69,7 @@ export const ActiveAlarmsPanel: React.FC = () => {
               </button>
               <button 
                 onClick={() => navigate(`/bay/${bay.bayId}`)}
-                className={`btn-action btn-ghost ${styles.alarmActionBtn}`}
-                style={{ color: '#38bdf8' }}
+                className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionInfo}`}
                 title="Open single bay cockpit"
                 aria-label={`Inspect ${bay.bayName}`}
               >
@@ -86,7 +81,7 @@ export const ActiveAlarmsPanel: React.FC = () => {
 
         {/* High Severity AI Incidents */}
         {highIncidents.map(inc => (
-          <div key={`inc-${inc.id}`} className={`${styles.alarmCard} ${styles.alarmCardWarning}`}>
+          <div key={`inc-${inc.id}`} className={`${styles.alarmCard} ${styles.alarmCardWarning}`} title={`${inc.type.replace('_', ' ')} - ${inc.details}`}>
             <div className={styles.alarmLeft}>
               <AlertTriangle size={20} className={styles.alarmIconAmber} />
               <div>
@@ -96,16 +91,12 @@ export const ActiveAlarmsPanel: React.FC = () => {
                 <div className={`${styles.alarmCause} ${styles.alarmCauseAmber}`}>
                   {inc.details}
                 </div>
-                <div className={styles.alarmMeta}>
-                  Timestamp: {inc.occurred_at} • Barcode: {inc.barcode_value || 'Unassociated'}
-                </div>
               </div>
             </div>
 
             <button 
               onClick={() => setInspectedIncident(inc)}
-              className={`btn-action btn-ghost ${styles.alarmActionBtn}`}
-              style={{ color: '#38bdf8' }}
+              className={`btn-action btn-ghost ${styles.alarmActionBtn} ${styles.alarmActionInfo}`}
               title="Inspect CCTV video frame"
               aria-label={`Inspect Incident #${inc.id}`}
             >
@@ -117,7 +108,7 @@ export const ActiveAlarmsPanel: React.FC = () => {
         {totalAlarmsCount === 0 && (
           <div className={styles.noAlarmsCard}>
             <CheckCircle2 size={20} />
-            <span>All 4 loading docks operating within normal conveyor speed and zero CCTV telemetry alarms.</span>
+            <span>All {bays.length} loading docks operating within normal conveyor speed and zero CCTV telemetry alarms.</span>
           </div>
         )}
       </div>

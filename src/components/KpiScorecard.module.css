@@ -1,106 +1,107 @@
 .kpiCard {
-  padding: 20px;
+  padding: var(--space-3);
 }
 
 .cardTop {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .cardLabel {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .valueRow {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-top: 4px;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
 }
 
 .metricValue {
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .metricSub {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
 .metricSubMins {
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
 .iconBox {
-  padding: 10px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: none;
 }
 
 .iconBoxCyan {
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--accent-sky);
+  background: var(--info-bg);
+  color: var(--info-text);
 }
 
 .iconBoxEmerald {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
+  background: var(--ok-bg);
+  color: var(--ok-text);
 }
 
 .iconBoxAmber {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
+  background: var(--warn-bg);
+  color: var(--warn-text);
 }
 
 .iconBoxViolet {
-  background: rgba(139, 92, 246, 0.12);
-  color: #a78bfa;
+  background: var(--accent-bg);
+  color: var(--accent-text);
 }
 
 .progressTrack {
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
+  height: 4px;
+  background: var(--surface-alt);
+  border-radius: var(--radius-full);
   overflow: hidden;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #0284c7, #38bdf8);
-  border-radius: 3px;
+  background: var(--accent);
+  border-radius: var(--radius-full);
   transition: width 0.4s ease;
 }
 
 .progressFooter {
   display: flex;
   justify-content: space-between;
-  margin-top: 8px;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
 .attainmentAchieved {
-  color: var(--accent-sky);
+  color: var(--accent-text);
   font-weight: 600;
-}
-
-.cardFooter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
 }
 
 .cardFooterText {
@@ -111,13 +112,13 @@
 .tatRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  font-size: 0.78rem;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: 0.8125rem;
 }
 
 .tatFaster {
-  color: #34d399;
+  color: var(--ok-text);
   display: flex;
   align-items: center;
   gap: 2px;
@@ -125,16 +126,10 @@
 }
 
 .tatSlower {
-  color: #fb7185;
+  color: var(--critical-text);
   display: flex;
   align-items: center;
   gap: 2px;
-  font-weight: 600;
-}
-
-.highCompliance {
-  font-size: 0.8rem;
-  color: #34d399;
   font-weight: 600;
 }
 
@@ -142,52 +137,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 14px;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
   font-size: 0.75rem;
 }
 
 .refusalAlert {
-  color: #fb7185;
+  color: var(--critical-text);
 }
 
 .refusalNormal {
-  color: #34d399;
+  color: var(--ok-text);
 }
 
 .slaBadge {
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
 }
 
 /* 1920px+ Wall Displays */
 @media (min-width: 1920px) {
   .kpiCard {
-    padding: 26px;
+    padding: var(--space-4);
   }
 
   .metricValue {
-    font-size: 2.3rem;
+    font-size: 1.75rem;
   }
 
   .cardLabel {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
   }
 }
 
 /* 1024px Tablets */
 @media (max-width: 1024px) {
   .kpiCard {
-    padding: 18px;
+    padding: var(--space-3);
   }
 }
 
 /* 768px Handhelds */
 @media (max-width: 768px) {
   .kpiCard {
-    padding: 16px;
+    padding: var(--space-3);
   }
 
   .metricValue {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 }
-

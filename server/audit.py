@@ -366,6 +366,10 @@ def append_audit_entry(
     return row
 
 
+def _now_iso() -> str:
+    return db_now().replace(" ", "T") + "Z"
+
+
 def verify_chain(connection: Connection) -> dict[str, Any]:
     """Recompute every link and return a verification report."""
 
@@ -385,7 +389,7 @@ def verify_chain(connection: Connection) -> dict[str, Any]:
                 "error": (
                     f"Entry {row_dict.get('id')} prev_hash does not match the previous entry"
                 ),
-                "checked_at": db_now(),
+                "checked_at": _now_iso(),
             }
         expected_hash = hash_payload(_payload(row_dict, previous_hash))
         if str(row_dict.get("entry_hash")) != expected_hash:
@@ -395,7 +399,7 @@ def verify_chain(connection: Connection) -> dict[str, Any]:
                 "head_hash": previous_hash,
                 "broken_at": row_dict.get("id"),
                 "error": f"Entry {row_dict.get('id')} content hash does not match",
-                "checked_at": db_now(),
+                "checked_at": _now_iso(),
             }
         previous_hash = expected_hash
 
@@ -405,7 +409,7 @@ def verify_chain(connection: Connection) -> dict[str, Any]:
         "head_hash": previous_hash if rows else None,
         "broken_at": None,
         "error": None,
-        "checked_at": db_now(),
+        "checked_at": _now_iso(),
     }
 
 

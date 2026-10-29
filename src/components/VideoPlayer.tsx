@@ -16,6 +16,18 @@ type VideoFrameRequestVideoElement = HTMLVideoElement & {
  */
 export type VideoPlayerSource = string | MediaStream;
 
+/**
+ * Canvas paint styles do not accept CSS custom properties, so token references
+ * from detection metadata are resolved against the current theme before use.
+ */
+function resolvePaint(value: string): string {
+  const token = /^var\((--[\w-]+)\)$/.exec(value.trim());
+  if (!token) return value;
+
+  const styles = getComputedStyle(document.documentElement);
+  return styles.getPropertyValue(token[1]).trim() || 'CanvasText';
+}
+
 export interface VideoPlayerProps {
   src: VideoPlayerSource;
   detections: VideoDetection[];
@@ -109,7 +121,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       if (detection.startTime !== undefined && currentTime < detection.startTime) return;
       if (detection.endTime !== undefined && currentTime > detection.endTime) return;
 
-      const color = detection.color ?? '#38bdf8';
+      const color = resolvePaint(detection.color ?? 'var(--accent)');
       const x = offsetX + detection.bbox.x * renderWidth;
       const y = offsetY + detection.bbox.y * renderHeight;
       const boxWidth = detection.bbox.width * renderWidth;
@@ -138,7 +150,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       context.fillStyle = color;
       context.fillRect(x, labelY, labelWidth, labelHeight);
-      context.fillStyle = '#050a12';
+      context.fillStyle = resolvePaint('var(--on-accent)');
       context.fillText(label, x + 6, labelY + 14);
       context.restore();
     });

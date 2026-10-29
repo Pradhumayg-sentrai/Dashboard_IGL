@@ -58,7 +58,7 @@ class IncidentReviewRequest(BaseModel):
 class RemovalCreateRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    session_id: int
+    session_id: int | None = None
     scan_id: int | None = None
     barcode_value: str | None = None
     reason: str
