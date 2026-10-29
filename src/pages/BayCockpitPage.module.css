@@ -166,6 +166,107 @@
   margin-top: 2px;
 }
 
+.headerBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.alertFilterRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.filterPill {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.filterPill:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.filterPillActive {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+}
+
+.filterPillCritical.filterPillActive {
+  color: var(--critical-text);
+  border-color: var(--critical-border);
+  background: var(--critical-bg);
+}
+
+.filterPillUrgent.filterPillActive {
+  color: var(--warn-text);
+  border-color: var(--warn-border);
+  background: var(--warn-bg);
+}
+
+.sectionDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sectionDivider:first-child {
+  margin-top: 0;
+}
+
+.sectionHeading {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.sectionBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.iconCritical {
+  color: var(--critical-text);
+  flex-shrink: 0;
+}
+
+.iconUrgent {
+  color: var(--warn-text);
+  flex-shrink: 0;
+}
+
 .incidentList {
   display: flex;
   flex-direction: column;
@@ -181,6 +282,25 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  transition: border-color 0.15s ease;
+}
+
+.incidentItemCritical {
+  border-left: 4px solid var(--critical);
+}
+
+.incidentItemUrgent {
+  border-left: 4px solid var(--warn);
+}
+
+.incidentAdvice {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
 }
 
 .incidentLeft {

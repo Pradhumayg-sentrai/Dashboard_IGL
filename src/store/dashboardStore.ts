@@ -5,7 +5,8 @@ import type {
   IncidentItem, 
   AuditEntry,
   KPIStats, 
-  ChartDataPoint 
+  ChartDataPoint,
+  SupervisorInfo
 } from '../data/plantData';
 import { 
   initialMultiBays, 
@@ -33,6 +34,16 @@ interface DashboardState {
 
   bays: LiveBayState[];
   toggleBayBelt: (bayId: number) => void;
+  assignBayTruckAndSupervisor: (
+    bayId: number,
+    assignment: {
+      truckReg: string;
+      indentNo: string;
+      allocatedQty: number;
+      supervisor: SupervisorInfo;
+      licenceNo?: string;
+    }
+  ) => void;
   applyBayDeltas: (deltas: BayDelta[], timestamp: number) => void;
   setFullBays: (bays: LiveBayState[], timestamp: number) => void;
 
@@ -87,6 +98,29 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           status: isRunning ? 'stopped' : 'loading',
           stopCause: isRunning ? 'Manual Supervisor Pause' : null,
           paceCpm: isRunning ? 0 : b.bayId === 1 ? 19.2 : 21.4,
+          lastUpdated: Date.now(),
+        };
+      }),
+      lastUpdateTimestamp: Date.now(),
+    }));
+  },
+
+  assignBayTruckAndSupervisor: (bayId, assignment) => {
+    set(state => ({
+      bays: state.bays.map(b => {
+        if (b.bayId !== bayId) return b;
+        const hasTruck = Boolean(assignment.truckReg.trim());
+        const isSameTruck = b.truckReg.toLowerCase() === assignment.truckReg.trim().toLowerCase();
+        return {
+          ...b,
+          truckReg: assignment.truckReg.trim(),
+          indentNo: assignment.indentNo.trim() || 'No active indent',
+          allocatedQty: assignment.allocatedQty > 0 ? assignment.allocatedQty : b.allocatedQty,
+          loadedQty: isSameTruck ? b.loadedQty : 0,
+          licenceNo: assignment.licenceNo || b.licenceNo,
+          supervisor: assignment.supervisor,
+          status: hasTruck ? 'preparing' : 'standby',
+          stopCause: null,
           lastUpdated: Date.now(),
         };
       }),
@@ -181,6 +215,7 @@ export const useTimeframe = () => useDashboardStore(s => s.timeframe);
 export const useSetTimeframe = () => useDashboardStore(s => s.setTimeframe);
 export const useBays = () => useDashboardStore(s => s.bays);
 export const useToggleBayBelt = () => useDashboardStore(s => s.toggleBayBelt);
+export const useAssignBayTruckAndSupervisor = () => useDashboardStore(s => s.assignBayTruckAndSupervisor);
 export const useIsSimulating = () => useDashboardStore(s => s.isSimulating);
 export const useToggleSimulation = () => useDashboardStore(s => s.toggleSimulation);
 export const useIncidents = () => useDashboardStore(s => s.incidents);

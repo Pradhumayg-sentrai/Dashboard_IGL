@@ -19,7 +19,7 @@ export function plainStopCause(cause: string | null): string {
   const normalized = cause.toLowerCase();
 
   if (normalized.includes('excise portal silent')) {
-    return 'Paperwork computer is not responding';
+    return 'Bay computer is not responding';
   }
   if (normalized.includes('decal unreadable') || normalized.includes('code decal')) {
     return 'Label cannot be read';
@@ -53,7 +53,7 @@ export function plainIncidentType(type: string): string {
     case 'camera_blocked':
       return 'Camera is blocked';
     case 'portal_silent':
-      return 'Paperwork computer is not responding';
+      return 'Bay computer is not responding';
     default:
       return 'Camera alert';
   }
@@ -72,7 +72,7 @@ export function plainIncidentAdvice(type: string): string {
     case 'camera_blocked':
       return 'The camera could not see clearly. Tell your supervisor.';
     case 'portal_silent':
-      return 'The paperwork computer did not respond. Tell your supervisor.';
+      return 'The bay computer did not respond. Tell your supervisor.';
     default:
       return 'The camera saw something unusual. Tell your supervisor.';
   }
@@ -81,13 +81,21 @@ export function plainIncidentAdvice(type: string): string {
 export function plainSeverity(severity: IncidentSeverity): string {
   switch (severity) {
     case 'critical':
+      return 'Critical';
     case 'high':
-      return 'Urgent';
     case 'medium':
-      return 'Check';
+      return 'Urgent';
     default:
       return 'Low';
   }
+}
+
+export function isAlertCritical(item: { severity: string; type?: string }): boolean {
+  if (item.severity === 'critical') return true;
+  if (item.type === 'missing_box' || item.type === 'camera_blocked' || item.type === 'portal_silent') {
+    return true;
+  }
+  return false;
 }
 
 export function formatClockTime(value: string | number | Date): string {

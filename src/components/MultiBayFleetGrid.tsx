@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { LiveBayState } from '../data/plantData';
 import { AlertTriangle, SlidersHorizontal, Truck } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { CallSupervisorButton } from './CallSupervisorButton';
+import { BayAssignmentModal } from './BayAssignmentModal';
 import { plainBayStatus, plainStopCause } from '../utils/plainLanguage';
 import styles from './MultiBayFleetGrid.module.css';
 
@@ -25,6 +26,8 @@ const statusKind = (status: LiveBayState['status']) => {
 };
 
 export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({ bays, onSelectBay }) => {
+  const [assigningBay, setAssigningBay] = useState<LiveBayState | null>(null);
+
   const activeCount = bays.filter(bay => bay.status === 'loading').length;
   const stoppedCount = bays.filter(bay => bay.status === 'stopped').length;
   const preparingCount = bays.filter(bay => bay.status === 'preparing').length;
@@ -80,10 +83,21 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({ bays, onSe
               )}
 
               <div className={styles.truckRow}>
-                <Truck size={17} color="var(--accent)" aria-hidden="true" />
-                <span className={`font-mono ${styles.truckReg}`}>
-                  {bay.truckReg || 'No truck yet'}
-                </span>
+                <div className={styles.truckIdentity}>
+                  <Truck size={17} color="var(--accent)" aria-hidden="true" />
+                  <span className={`font-mono ${styles.truckReg}`}>
+                    {bay.truckReg || 'No truck yet'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.assignPillBtn}
+                  onClick={() => setAssigningBay(bay)}
+                  title={`Assign truck and supervisor to ${bay.bayName}`}
+                  aria-label={`Assign truck and supervisor to ${bay.bayName}`}
+                >
+                  Assign
+                </button>
               </div>
 
               <div>
@@ -124,6 +138,14 @@ export const MultiBayFleetGrid: React.FC<MultiBayFleetGridProps> = ({ bays, onSe
           );
         })}
       </div>
+
+      {assigningBay && (
+        <BayAssignmentModal
+          bay={assigningBay}
+          isOpen={true}
+          onClose={() => setAssigningBay(null)}
+        />
+      )}
     </section>
   );
 };

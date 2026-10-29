@@ -4,6 +4,7 @@ import { hardwareDevices } from '../data/plantData';
 import {
   AlertTriangle,
   Barcode,
+  CalendarCheck,
   CheckCircle2,
   Clock,
   Cpu,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { CallSupervisorButton } from './CallSupervisorButton';
+import { BayAssignmentModal } from './BayAssignmentModal';
 import { plainBayStatus, plainStopCause } from '../utils/plainLanguage';
 import styles from './LiveBayMonitor.module.css';
 
@@ -62,6 +64,7 @@ const gateLabel = (flag: LiveBayState['gateFlag']) => {
 
 export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ liveBay }) => {
   const [now, setNow] = useState<number>(Date.now());
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 5000);
@@ -142,12 +145,22 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ liveBay }) => {
 
         <div className={styles.vehicleBox}>
           <Truck size={22} color="var(--accent)" aria-hidden="true" />
-          <div>
+          <div className={styles.vehicleInfo}>
             <div className={styles.vehicleLabel}>Truck at this bay</div>
             <div className={styles.vehicleReg}>
               {liveBay.truckReg || 'No truck yet'}
             </div>
           </div>
+          <button
+            type="button"
+            className={`btn-action btn-ghost ${styles.assignBayBtn}`}
+            onClick={() => setIsAssignOpen(true)}
+            title={`Assign truck and supervisor for shift to ${liveBay.bayName}`}
+            aria-label={`Assign truck and supervisor for shift to ${liveBay.bayName}`}
+          >
+            <CalendarCheck size={16} aria-hidden="true" />
+            <span>Assign Bay</span>
+          </button>
         </div>
       </div>
 
@@ -220,7 +233,7 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ liveBay }) => {
               .map(name => name[0])
               .join('')}
           </div>
-          <div>
+          <div className={styles.supInfoWrapper}>
             <div className={styles.supLabel}>
               <UserCheck size={15} color="var(--ok)" aria-hidden="true" />
               Your supervisor
@@ -231,8 +244,19 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ liveBay }) => {
               <span className={styles.phoneHighlight}>
                 {liveBay.supervisor.phoneExt}
               </span>
+              <span className={styles.supShiftBadge}>
+                {liveBay.supervisor.shift.split(' ')[0]} {liveBay.supervisor.shift.split(' ')[1] || ''}
+              </span>
             </div>
           </div>
+          <button
+            type="button"
+            className={styles.changeSupBtn}
+            onClick={() => setIsAssignOpen(true)}
+            title="Change shift or supervisor"
+          >
+            Change
+          </button>
         </div>
 
         <div className={styles.callCard}>
@@ -322,6 +346,12 @@ export const LiveBayMonitor: React.FC<LiveBayMonitorProps> = ({ liveBay }) => {
           </div>
         </div>
       </details>
+
+      <BayAssignmentModal
+        bay={liveBay}
+        isOpen={isAssignOpen}
+        onClose={() => setIsAssignOpen(false)}
+      />
     </div>
   );
 };

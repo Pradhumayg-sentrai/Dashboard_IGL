@@ -200,6 +200,111 @@ export const initialSupervisors: SupervisorInfo[] = [
     removalsCount: 0,
     activeAlarmsCount: 0,
   },
+  {
+    userId: 6,
+    name: 'Vikram Malhotra',
+    employeeId: 'SAI-001',
+    assignedBayIds: [1, 2],
+    shift: 'Shift A (06:00-14:00)',
+    phoneExt: '101',
+    avatarColor: 'var(--chart-3)',
+    rating: 99.3,
+    avgTatMinutes: 30.8,
+    paceCpm: 22.0,
+    removalsCount: 0,
+    activeAlarmsCount: 0,
+  },
+  {
+    userId: 7,
+    name: 'Ramesh Chandra',
+    employeeId: 'SAI-006',
+    assignedBayIds: [3, 4],
+    shift: 'Shift A (06:00-14:00)',
+    phoneExt: '102',
+    avatarColor: 'var(--chart-1)',
+    rating: 97.9,
+    avgTatMinutes: 33.2,
+    paceCpm: 19.8,
+    removalsCount: 1,
+    activeAlarmsCount: 0,
+  },
+  {
+    userId: 8,
+    name: 'Sunil Yadav',
+    employeeId: 'SAI-007',
+    assignedBayIds: [1, 2, 3, 4],
+    shift: 'Shift C (22:00-06:00)',
+    phoneExt: '108',
+    avatarColor: 'var(--chart-2)',
+    rating: 98.1,
+    avgTatMinutes: 35.4,
+    paceCpm: 18.5,
+    removalsCount: 0,
+    activeAlarmsCount: 0,
+  },
+  {
+    userId: 9,
+    name: 'Manoj Tiwari',
+    employeeId: 'SAI-008',
+    assignedBayIds: [5, 6, 7, 8],
+    shift: 'Shift C (22:00-06:00)',
+    phoneExt: '109',
+    avatarColor: 'var(--chart-4)',
+    rating: 97.5,
+    avgTatMinutes: 36.1,
+    paceCpm: 17.9,
+    removalsCount: 0,
+    activeAlarmsCount: 0,
+  },
+];
+
+export interface GateTruckQueueItem {
+  truckReg: string;
+  driverName: string;
+  driverPhone: string;
+  indentNo: string;
+  allocatedQty: number;
+  licenceNo: string;
+  status: 'at_gate' | 'weighed' | 'verified';
+}
+
+export const gateTruckQueue: GateTruckQueueItem[] = [
+  {
+    truckReg: 'HR55CD9900',
+    driverName: 'Sanjay Yadav',
+    driverPhone: '+91 98110 44210',
+    indentNo: 'BOTTELING912384-CLB2-WHOLESALE712001-CL2-GORA-Oct26_00000150',
+    allocatedQty: 500,
+    licenceNo: 'LIC/BOTTLING/CLB2/11/2024/462322/26_27',
+    status: 'verified',
+  },
+  {
+    truckReg: 'UP32MN7788',
+    driverName: 'Mohan Singh',
+    driverPhone: '+91 94150 18234',
+    indentNo: 'BOTTELING714509-CLB2-WHOLESALE649203-CL2-GORA-Oct26_00000137',
+    allocatedQty: 600,
+    licenceNo: 'LIC/BOTTLING/CLB2/11/2024/462322/26_27',
+    status: 'weighed',
+  },
+  {
+    truckReg: 'DL01XY4567',
+    driverName: 'Harish Rawat',
+    driverPhone: '+91 98712 99014',
+    indentNo: 'BOTTELING805617-CLB1-WHOLESALE657440-CL2-GORA-Oct26_00000142',
+    allocatedQty: 450,
+    licenceNo: 'LIC/BOTTLING/CLB1/02/26_27',
+    status: 'at_gate',
+  },
+  {
+    truckReg: 'UK04AB3322',
+    driverName: 'Dinesh Joshi',
+    driverPhone: '+91 97190 23118',
+    indentNo: 'BOTTELING940128-CLB2-WHOLESALE730192-CL2-GORA-Oct26_00000158',
+    allocatedQty: 550,
+    licenceNo: 'LIC/BOTTLING/CLB2/11/2024/462322/26_27',
+    status: 'verified',
+  },
 ];
 
 export const initialMultiBays: LiveBayState[] = [
@@ -532,6 +637,18 @@ export function getChartDataForTimeframe(timeframe: Timeframe): ChartDataPoint[]
 }
 
 export const sampleIncidents: IncidentItem[] = [
+  {
+    id: 4273,
+    type: 'missing_box',
+    severity: 'critical',
+    occurred_at: '2026-10-14 12:52:18',
+    barcode_value: '0890801489635500260101102614589210',
+    status: 'open',
+    details: 'Carton detected at depalletizer chute but failed to appear in bay loading frame after 90 seconds',
+    bay_id: 1,
+    bay_name: 'Bay 1',
+    truck_reg: 'UP58AT9207',
+  },
   {
     id: 4272,
     type: 'throw',

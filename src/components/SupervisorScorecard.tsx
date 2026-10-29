@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { SupervisorInfo } from '../data/plantData';
 import { 
   Users, 
@@ -27,6 +27,13 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
   isError = false,
   errorMessage = 'Failed to load supervisor shift roster',
 }) => {
+  const [selectedShiftFilter, setSelectedShiftFilter] = useState<'all' | 'Shift A' | 'Shift B' | 'Shift C'>('all');
+
+  const filteredSupervisors = useMemo(() => {
+    if (selectedShiftFilter === 'all') return supervisors;
+    return supervisors.filter(sup => sup.shift.startsWith(selectedShiftFilter));
+  }, [supervisors, selectedShiftFilter]);
+
   return (
     <div className={`card ${styles.card}`}>
       
@@ -40,13 +47,53 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
             </h3>
           </div>
           <p className={styles.subtitle}>
-            Shift B • 14:00–22:00
+            3 daily shifts • 24/7 terminal dispatch operations
           </p>
         </div>
 
         <StatusBadge kind="verified" icon={ShieldCheck}>
           All supervisors certified
         </StatusBadge>
+      </div>
+
+      {/* Daily Shift Filter Pills */}
+      <div className={styles.filterBar} role="tablist" aria-label="Filter by daily shift">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={selectedShiftFilter === 'all'}
+          className={`${styles.filterPill} ${selectedShiftFilter === 'all' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedShiftFilter('all')}
+        >
+          All Shifts ({supervisors.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={selectedShiftFilter === 'Shift A'}
+          className={`${styles.filterPill} ${selectedShiftFilter === 'Shift A' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedShiftFilter('Shift A')}
+        >
+          Shift A (06:00-14:00)
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={selectedShiftFilter === 'Shift B'}
+          className={`${styles.filterPill} ${selectedShiftFilter === 'Shift B' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedShiftFilter('Shift B')}
+        >
+          Shift B (14:00-22:00)
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={selectedShiftFilter === 'Shift C'}
+          className={`${styles.filterPill} ${selectedShiftFilter === 'Shift C' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedShiftFilter('Shift C')}
+        >
+          Shift C (22:00-06:00)
+        </button>
       </div>
 
       {/* Supervisors Table / Card List */}
@@ -65,14 +112,14 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
           </div>
         )}
 
-        {!isLoading && !isError && supervisors.length === 0 && (
+        {!isLoading && !isError && filteredSupervisors.length === 0 && (
           <div className={styles.stateBox}>
             <Inbox size={24} />
             <span>No supervisors assigned to this active shift</span>
           </div>
         )}
 
-        {!isLoading && !isError && supervisors.map(sup => (
+        {!isLoading && !isError && filteredSupervisors.map(sup => (
           <div 
             key={sup.userId}
             className={styles.supervisorCard}
@@ -91,7 +138,8 @@ export const SupervisorScorecard: React.FC<SupervisorScorecardProps> = ({
                     {sup.name}
                   </div>
                   <div className={styles.idRow}>
-                    ID: <strong className={styles.employeeIdStrong}>{sup.employeeId}</strong> • Bays:{' '}
+                    ID: <strong className={styles.employeeIdStrong}>{sup.employeeId}</strong> •{' '}
+                    <span className={styles.shiftTag}>{sup.shift.split(' ')[0]} {sup.shift.split(' ')[1]}</span> • Bays:{' '}
                     <strong className={styles.bayStrong}>{sup.assignedBayIds.join(', ')}</strong>
                   </div>
                 </div>

@@ -50,8 +50,10 @@ export const AppLayout: React.FC = () => {
 
       {/* 4. Global Footer */}
       <footer className={styles.footer}>
-        <p>India Glycols Limited • Loading Bay Dashboard</p>
-        <p className={styles.footerMeta}>Need help? Call your supervisor.</p>
+        <p className={styles.footerBrand}>India Glycols Limited • Loading Bay Dashboard</p>
+        <p className={styles.poweredBy}>
+          Powered by <strong>SentrAi</strong>
+        </p>
       </footer>
 
       {/* 5. Mobile-friendly Bottom Navigation (< 768px) */}
