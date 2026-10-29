@@ -52,7 +52,7 @@ export const AppLayout: React.FC = () => {
       <footer className={styles.footer}>
         <p className={styles.footerBrand}>India Glycols Limited • Loading Bay Dashboard</p>
         <p className={styles.poweredBy}>
-          Powered by <strong>SentrAi</strong>
+          Powered by <strong>SentrAI</strong>
         </p>
       </footer>
 
